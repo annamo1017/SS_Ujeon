@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>완두콩 뿌리 생장 – 세포분열 탐구 (2n=4)</title>
+<script>window.addEventListener('load',function(){setTimeout(function(){if(!window.__ok){var e=document.getElementById('loadchk');if(e){e.style.display='block';}}},1500);});</script>
+<style>
+:root{--bg:#0e1116;--card:#1a1f29;--tx:#e8ecf2;--ac:#f5c518;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+body{height:100%;margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,'Apple SD Gothic Neo','Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;overflow:hidden;touch-action:none;font-size:14px}
+canvas{position:fixed;inset:0;width:100%;height:100%;transition:filter .15s}
+
+.navb{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);z-index:40;width:50px;height:50px;border-radius:50%;padding:0;font-size:22px;background:#2b3342;color:#fff;display:inline-block;box-shadow:0 2px 10px rgba(0,0,0,.5)}
+#nhome{left:12px}
+#nmenu{right:12px}
+#nav{position:fixed;inset:0;background:rgba(5,7,10,.8);z-index:50;align-items:center;justify-content:center;padding:12px}
+#nav .np{background:#161b24;border:1px solid #2f3848;border-radius:18px;padding:14px 16px;max-width:760px;width:100%;max-height:92vh;overflow-y:auto;touch-action:pan-y}
+.nh{display:flex;justify-content:space-between;align-items:center;font-size:18px;margin-bottom:8px}
+.navx{display:inline-block;background:#2b3342;color:#fff;padding:6px 12px;font-size:16px}
+.ncols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ncols h4{margin:4px 0 8px;font-size:16px;color:#ffe37a}
+.ncols button{display:block;width:100%;margin:0 0 6px;text-align:left;font-size:14px;padding:9px 12px;background:#232a37;color:#e8ecf2;border-radius:10px}
+.ncols button.st{background:#3a2f0a;color:#ffe37a}
+@media(max-width:560px){.ncols{grid-template-columns:1fr}
+}
+#card{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;right:8px;max-width:620px;margin:auto;background:rgba(26,31,41,.93);border:1px solid #2b3342;border-radius:14px;padding:10px 14px;display:none;line-height:1.45}
+#card b{color:var(--ac)}
+#pb{display:flex;gap:4px;margin-top:8px}
+.seg{flex:1;position:relative;height:24px;border-radius:7px;background:#232a37;overflow:hidden;border:1px solid #2f3848}
+.seg.go{cursor:pointer;border-color:#5b6b8c}
+.seg.cur{border-color:var(--ac)}
+.seg .f{position:absolute;inset:0 auto 0 0;width:0;background:linear-gradient(90deg,#b88a00,#f5c518);transition:width .2s}
+.seg em{position:relative;display:block;text-align:center;font-style:normal;font-size:11px;line-height:24px;font-weight:700;color:#fff;text-shadow:0 1px 3px #000;white-space:nowrap}
+.gap{width:2px;background:#5b6b8c;border-radius:1px}
+#pop{position:fixed;left:50%;top:44%;transform:translate(-50%,-50%) scale(.6);opacity:0;pointer-events:none;background:rgba(20,24,32,.94);border:2px solid var(--ac);border-radius:18px;padding:18px 28px;font-size:clamp(22px,6vw,34px);font-weight:800;color:#ffe37a;text-align:center;white-space:nowrap;transition:transform .3s cubic-bezier(.3,1.6,.5,1),opacity .3s;box-shadow:0 8px 40px rgba(245,197,24,.3)}
+#pop.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
+#pop .ne{font-size:clamp(18px,4.8vw,24px);color:#8ecae6;margin-top:8px}
+#pop{white-space:normal;max-width:92vw}
+#pop small{display:block;font-size:14px;color:#cbd5e1;font-weight:500;margin-top:4px}
+#bar{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);left:0;right:0;text-align:center}
+#tip{font-size:18px;position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 72px);left:0;right:0;text-align:center;font-weight:600;color:#ffe37a;text-shadow:0 1px 6px #000;padding:0 12px}
+button{font:inherit;background:var(--ac);color:#111;border:0;border-radius:24px;padding:12px 26px;font-weight:700;margin:4px;display:none}
+#modes{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,12,16,.55);text-align:center;padding:16px}
+#modes button{display:block;width:min(320px,90vw);margin:6px}
+h2{margin:0 0 8px}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="card"></div><div id="tip"></div><div id="pop"></div>
+<div id="bar"><button id="b1">🧬 복제하기</button><button id="b4">🧬 복제하기</button><button id="b5">🚫 복제하지 않기</button><button id="b2">🌱 뿌리가 자라는 모습 보기</button><button id="b3">↺ 다시 하기</button></div>
+<button id="nhome" class="navb" title="처음으로">🏠</button><button id="nmenu" class="navb" title="단계 이동">☰</button>
+<div id="nav" style="display:none"><div class="np"><div class="nh"><b>단계 바로 가기</b><button id="nx" class="navx">✕</button></div><div class="ncols"><div><h4>🌱 체세포분열</h4><div id="nl1"></div></div><div><h4>🌼 생식세포분열</h4><div id="nl2"></div></div></div></div></div>
+<div id="modes"><h2>어떤 세포분열을 탐구할까요?</h2><p style="margin:0 0 12px;font-size:18px;font-weight:700;color:#ffe37a">2n=4 모델 (긴 염색체 1쌍 + 짧은 염색체 1쌍)</p><button id="m1">🌱 체세포분열 – 뿌리 끝 생장 (2n→2n)</button><button id="m2">🌼 생식세포분열 – 꽃과 자가수분 (2n→n)</button></div>
+<div id="loadchk" style="display:none;position:fixed;left:0;right:0;top:0;z-index:2147483647;background:#7f1d1d;color:#fff;padding:14px 18px;font:700 16px/1.5 sans-serif;text-align:center">⚠️ 앱 코드가 끝까지 불러와지지 않았어요. 파일이 중간에 잘렸거나 일부만 올라갔을 수 있어요. 원본 파일을 GitHub의 Upload files로 다시 올려 주세요.</div>
+<noscript><div style="position:fixed;left:0;right:0;top:0;background:#7f1d1d;color:#fff;padding:14px;font:700 16px sans-serif;text-align:center">⚠️ JavaScript가 꺼져 있어서 앱이 작동하지 않아요.</div></noscript>
+<script>
+const $ = id => document.getElementById(id), cv = $('c'), g = cv.getContext('2d');
+let W, H, cx, cy, rx, ry, L;
+function rs() { const d = devicePixelRatio || 1; W = innerWidth; H = innerHeight; cv.width = W * d; cv.height = H * d; g.setTransform(d, 0, 0, d, 0, 0); ry = Math.min(H * .28, W * .34); rx = Math.min(ry * 1.4, W * .47); cx = W / 2; cy = H * .54; L = rx * .68; }
+addEventListener('resize', rs);
+rs();
+let ph = 'choose', fz = 0, sp = 0, ft = 0, m2 = false, cy2 = 0, rt = false, mode = 'mit', step = 0, cond = 0, prog = 0, sep = 0, cyt = 0, zt = 0, ot = 0, ch = [], dr = null, lp = null, la = null, conf = [], lastT = 0, tk = 0, pt = 0;
+const T = [['간기 ① 염색사 분류', '풀어진 염색사 4줄을 끌어 <b>긴 염색체 구역(A/a)</b>과 <b>짧은 염색체 구역(B/b)</b>에 넣으세요.'],
+    ['간기 ② DNA 복제', '<b>복제하기</b> 버튼을 눌러 염색사와 유전자를 복제하세요. (A-A, a-a, B-B, b-b)'],
+    ['전기 · 염색체 응축', '염색사 <b>하나하나</b> 위에서 손가락/마우스로 <b>동글동글 돌려</b> 각각 X자 염색체로 응축시키세요.'],
+    ['전기 · 방추사 부착', '전기 후반, 핵막이 사라지고 세포 양쪽 극에서 방추사가 뻗어 나와요. <span style="color:#a3d977">(식물 세포에는 중심체가 없어요)</span> 각 염색체의 <b>동원체(●)</b>를 눌러 연결하세요.'],
+    ['중기 · 적도면 정렬', '방추사가 매달린 염색체를 끌어 세포 <b>가운데(적도면)</b>에 정렬하세요.'],
+    ['후기', '방추사를 당기듯 화면을 <b>좌우로 문질러</b> 보세요. '],
+    ['말기 ① 세포판 형성', '적도면에 작은 주머니(소낭)들이 모여 <b>세포판</b>이 만들어져요. 가운데 점선을 <b>위아래로 쓸어</b> 세포판을 키워 딸세포 2개로 나누세요. <span style="color:#a3d977">(식물 세포는 세포벽 때문에 세포막이 잘록해지지 않아요)</span>'],
+    ['말기 ② 핵막 형성', '각 염색체 위에서 <b>동글동글 돌려</b> 하나씩 염색사로 풀면 핵막이 완성됩니다.']];
+const MS = [0, 1, 2, 13, 14, 15, 16, 17, 23, 18, 22, 19, 20, 21];
+function nx() { return mode == 'mit' ? step + 1 : MS[MS.indexOf(step) + 1]; }
+T[13] = ['전기 I · 상동염색체 접합', '같은 길이의 <b>상동 염색체끼리</b> 끌어다 붙이세요. 동원체(●)를 사이에 두고 좌우로 붙은 <b>2가염색체(>●<)</b>가 됩니다.'];
+T[14] = ['전기 I · 방추사 부착', '전기 후반, 방추사가 뻗어 나와요. 각 상동 염색체의 <b>동원체(●)</b>를 눌러 연결하세요. 상동 염색체는 <b>서로 반대쪽 극</b>에 연결됩니다.'];
+T[15] = ['중기 I · 적도면 정렬', '<b>2가염색체(상동 염색체 쌍)</b>를 끌어 가운데 <b>점선(적도면)</b>에 배열하세요. 짝이 함께 움직여요.'];
+T[16] = ['후기 I · 상동염색체 분리', '좌우로 문질러 <b>상동 염색체를 분리</b>해 양극으로 보내세요. (염색분체는 붙어 있어요)'];
+T[17] = ['말기 I · 세포판 형성', '적도면에 소낭이 모여 <b>세포판</b>이 생겨요. 가운데 점선을 <b>위아래로 쓸어</b> 세포판을 키워 <b>딸세포 2개</b>로 나누세요. 이후 DNA 복제 없이 감수 2분열이 이어집니다.'];
+T[23] = ['전기 II · 복제 여부 확인', '감수 2분열을 시작하기 전, DNA를 <b>복제해야 할까요?</b> 아래 버튼 중 하나를 골라 보세요.'];
+T[18] = ['전기 II · 방추사 부착', 'DNA 복제 없이 감수 2분열 시작! 두 딸세포에 방추사가 <b>위아래 극</b>에서 생겼어요. 가로로 누운 X자 염색체의 <b>동원체(●)</b>를 눌러 연결하세요.'];
+T[22] = ['중기 II · 적도면 정렬', '방추사가 붙은 염색체를 끌어 각 딸세포의 <b>가로 중앙선(적도면)</b>에 정렬하세요.'];
+T[19] = ['후기 II · 염색분체 분리', '화면을 <b>위아래로 문질러</b> 자매 염색분체를 분리해 양극으로 당기세요.'];
+T[20] = ['말기 II · 세포판 형성', '각 딸세포 가운데의 가로 점선을 <b>좌우로 쓸어</b> 세포판을 만들어 <b>딸세포 4개(n=2)</b>를 만드세요. <span style="color:#a3d977">(식물 세포는 세포벽 때문에 세포막이 잘록해지지 않아요)</span>'];
+T[21] = ['말기 II · 핵막 형성', '각 염색체 위에서 <b>동글동글 돌려</b> 염색사로 풀면 핵막이 만들어집니다.'];
+const ZY = [-.42, .42], SL = [-.42, -.14, .14, .42];
+let ac;
+function snd(f, d = .15, ty = 'sine', v = .1, f2) { try {
+    ac = ac || new (window.AudioContext || webkitAudioContext)();
+    const t = ac.currentTime, o = ac.createOscillator(), n = ac.createGain();
+    o.type = ty;
+    o.frequency.setValueAtTime(f, t);
+    if (f2)
+        o.frequency.exponentialRampToValueAtTime(f2, t + d);
+    n.gain.setValueAtTime(v, t);
+    n.gain.exponentialRampToValueAtTime(.001, t + d);
+    o.connect(n).connect(ac.destination);
+    o.start();
+    o.stop(t + d);
+}
+catch (e) { } }
+function tip(s, ms = 2200) { $('tip').textContent = s; clearTimeout(tip.t); tip.t = setTimeout(() => $('tip').textContent = '', ms); }
+function init() { ch = [['#ef4444', 'A', 1, 0], ['#3b82f6', 'a', 1, 0], ['#22c55e', 'B', .5, 1], ['#facc15', 'b', .5, 1]].map((o, i) => { const c = { c: o[0], n: o[1], len: o[2], z: o[3], i, x: cx + (Math.random() - .5) * rx * .9, y: cy + (Math.random() - .5) * ry * .9, rep: 0, att: 0, side: 0, ok: 0, cd: 0 }; clamp(c); c.tx = c.x; c.ty = c.y; return c; }); cond = prog = sep = cyt = cy2 = 0; m2 = false; }
+const LS = c => c.len * L * (m2 ? .55 : 1), LC = c => c.len * L * .5, EX = c => ((step >= 3 && step < 21) || step == 22 || step == 23) && step != 7 && step != 99 ? LC(c) : LS(c);
+function mpos() { const gp = 8, o = [2, 0, 1, 3], hs = o.map(i => LC(ch[i])), tot = hs.reduce((a, b) => a + b, 0) + gp * 3; let y = cy - tot / 2; const r = []; o.forEach((i, k) => { r[i] = y + hs[k] / 2; y += hs[k] + gp; }); return r; }
+function vtc(c) { return !m2 && EX(c) == LC(c); }
+function hit(c, x, y) { const h = Math.max(EX(c) / 2, 20) + 14; return vtc(c) ? Math.abs(x - c.x) < Math.max(34, h * .8) && Math.abs(y - c.y) < h : Math.abs(x - c.x) < h && Math.abs(y - c.y) < 30; }
+function clamp(c) { if (m2) {
+    const a = rx * .5 - EX(c) / 2 - 8, b = ry - 34, dc = cx + c.side * rx * .5;
+    let dx = (c.x - dc) / a, dy = (c.y - cy) / b, d = Math.hypot(dx, dy);
+    if (d > 1) {
+        c.x = dc + dx / d * a;
+        c.y = cy + dy / d * b;
+    }
+    return;
+} const a = rx - EX(c) / 2 - 10, b = vtc(c) ? ry - EX(c) / 2 - 10 : ry - 16; let dx = (c.x - cx) / a, dy = (c.y - cy) / b, d = Math.hypot(dx, dy); if (d > 1) {
+    c.x = cx + dx / d * a;
+    c.y = cy + dy / d * b;
+} }
+const PH = { mit: [['간기', [0, 1]], ['전기', [2, 3]], ['중기', [4]], ['후기', [5]], ['말기', [6, 7]]],
+    mei: [['간기', [0, 1]], ['전기Ⅰ', [2, 13, 14]], ['중기Ⅰ', [15]], ['후기Ⅰ', [16]], ['말기Ⅰ', [17]], 0, ['전기Ⅱ', [23, 18]], ['중기Ⅱ', [22]], ['후기Ⅱ', [19]], ['말기Ⅱ', [20, 21]]] };
+let snaps = {}, segs = [];
+const NE = { '전기': '🔹 핵막 소실 · 인 소실', '전기Ⅰ': '🔹 핵막 소실 · 인 소실', '말기': '🔸 핵막 재형성 · 인 재형성', '말기Ⅱ': '🔸 핵막 재형성 · 인 재형성' };
+function pop(t, sub, ne) { const e = $('pop'); e.innerHTML = t + (ne ? '<div class="ne">' + ne + '</div>' : '') + (sub ? '<small>' + sub + '</small>' : ''); e.classList.add('on'); snd(523, .12, 'triangle', .12); setTimeout(() => snd(784, .25, 'triangle', .12), 110); clearTimeout(pop.t); pop.t = setTimeout(() => e.classList.remove('on'), ne ? 2300 : 1500); }
+function phN(k) { const q = PH[mode].find(q => q && q[1].includes(k)); return q ? q[0] : ''; }
+function ord(k) { return mode == 'mit' ? k : MS.indexOf(k); }
+function stepFrac() {
+    const n4 = f => ch.filter(f).length / 4, av = ch.reduce((u, k) => u + k.cd, 0) / 4;
+    return ({ 0: n4(c => c.ok), 2: av, 13: n4(c => c.ok), 3: n4(c => c.att), 14: n4(c => c.att), 18: n4(c => c.att), 4: n4(c => c.ok), 22: n4(c => c.ok), 5: sep, 16: sep, 19: sep, 6: cyt, 17: cyt, 20: cy2, 7: 1 - av, 21: 1 - av })[step] || 0;
+}
+function gauge() {
+    if (ph != 'play')
+        return;
+    const cur = ord(step);
+    segs.forEach(o => {
+        const st = o.st, i0 = ord(st[0]), i1 = ord(st[st.length - 1]);
+        let f;
+        if (step == 99 || cur > i1)
+            f = 1;
+        else if (cur < i0)
+            f = 0;
+        else
+            f = (st.indexOf(step) + Math.min(1, stepFrac())) / st.length;
+        o.f.style.width = (f * 100) + '%';
+        o.el.classList.toggle('cur', step != 99 && cur >= i0 && cur <= i1);
+        o.el.classList.toggle('go', true);
+    });
+}
+function goBack(t) { const sn = snaps[t]; if (!sn)
+    return; ch = JSON.parse(sn.ch); sep = sn.sep; cyt = sn.cyt; cy2 = sn.cy2; cond = sn.cond; dr = null; step = sn.prev; $('b2').style.display = 'none'; $('tip').textContent = ''; setStep(t, 1); snd(330, .2, 'sine', .1, 220); }
+function setStep(n, quiet) {
+    if (!quiet && ph == 'play' && step != n && T[step] && n != 0)
+        phN(step) == phN(n) ? pop('✔ ' + T[step][0].split(' · ').pop(), T[step][0]) : pop(phN(step) + ' 완료!', T[step][0], NE[phN(step)]);
+    snaps[n] = { ch: JSON.stringify(ch), sep, cyt, cy2, cond, prev: step };
+    step = n;
+    prog = 0;
+    la = null;
+    m2 = mode == 'mei' && [18, 22, 19, 20, 21].includes(n);
+    if (n == 2)
+        ch.forEach(c => c.cd = 0);
+    if (n == 7 || n == 21) {
+        ch.forEach(c => c.cd = 1);
+        cond = 1;
+    }
+    if (n == 21)
+        ch.forEach(c => { c.tx = cx + c.side * rx * .5 + (c.z ? .2 : -.1) * rx; c.ty = cy; });
+    if (n == 7)
+        ch.forEach(c => c.ty = cy + (c.ty - cy) * .75);
+    if ([4, 13, 15, 22].includes(n))
+        ch.forEach(c => c.ok = 0);
+    if (n == 18)
+        ch.forEach(c => c.att = 0);
+    if (n == 5)
+        ch.forEach(c => { c.tx = cx; c.x = cx; });
+    if (n == 18) {
+        ch.forEach(c => { c.x += c.side * rx * .5; c.tx = cx + c.side * rx * .5 + (c.z ? 1 : -1) * rx * .15; c.ty = cy + (c.z ? -.4 : .3) * ry; });
+        sep = 0;
+        cyt = 1;
+        cy2 = 0;
+    }
+    $('card').style.display = 'block';
+    let d = T[n][1];
+    if (n == 5)
+        d += mode == 'mit' ? '자매 염색분체가 갈라져 V자로 양극으로 이동합니다.' : '상동 염색체가 갈라져 양극으로 이동합니다(감수 1분열).';
+    $('card').innerHTML = '<b>' + T[n][0] + '</b> · ' + (mode == 'mit' ? '체세포분열' : '생식세포분열') + '<br>' + d + '<div id="pb">' + PH[mode].map(q => q ? '<div class="seg" data-s="' + q[1][0] + '"><span class="f"></span><em>' + q[0] + '</em></div>' : '<div class="gap"></div>').join('') + '</div>';
+    segs = [...$('card').querySelectorAll('.seg')].map((el, i) => { const st = PH[mode].filter(Boolean)[i][1]; el.onclick = () => { if (st[0] != step)
+        jumpStep(mode, st[0]); }; return { el, st, f: el.querySelector('.f') }; });
+    gauge();
+    $('b1').style.display = n == 1 ? 'inline-block' : 'none';
+    $('b4').style.display = $('b5').style.display = n == 23 ? 'inline-block' : 'none';
+    $('b2').style.display = 'none';
+    if (n == 3 && mode == 'mit') {
+        const Y = mpos();
+        ch.forEach((c, i) => { c.tx = cx + [-.2, .17, -.12, .22][i] * rx; c.ty = Y[i]; });
+    }
+    else if (n == 13)
+        ch.forEach((c, i) => { c.tx = cx + (i % 2 ? 1 : -1) * rx * (.28 + .08 * i); c.ty = cy + SL[i] * ry; clamp({ x: 0, y: 0, len: c.len }); });
+    if (n == 5 || n == 13) {
+        ch[0].side = -1;
+        ch[1].side = 1;
+        const r = Math.random() < .5 ? -1 : 1;
+        ch[2].side = r;
+        ch[3].side = -r;
+    }
+}
+$('b4').onclick = () => { snd(160, .35, 'sawtooth', .1, 90); pop('✖ 복제하지 않아요!', '감수 1분열과 2분열 사이에는 간기(DNA 복제)가 없어요.<br>각 염색체는 이미 염색분체 2개로 되어 있어요.'); };
+$('b5').onclick = () => { $('b4').style.display = $('b5').style.display = 'none'; tip('정답! DNA 복제 없이 바로 감수 2분열을 시작해요.', 3000); setStep(18); };
+function ok() { snd(660, .25, 'sine', .12, 990); }
+$('b1').onclick = () => { ch.forEach(c => c.rep = 1); snd(300, .5, 'triangle', .15, 700); $('b1').style.display = 'none'; setTimeout(() => setStep(2), 1000); };
+$('b2').onclick = () => { ph = mode == 'mit' ? 'outro' : 'fuse'; ot = 0; ft = 0; $('card').style.display = 'none'; $('b2').style.display = 'none'; };
+$('b3').onclick = () => { ph = 'choose'; zt = 0; fz = 0; ft = 0; $('b3').style.display = 'none'; conf = []; cv.style.filter = ''; $('modes').style.display = 'flex'; };
+function goHome() { ph = 'choose'; zt = 0; fz = 0; ft = 0; ot = 0; outro.d = 0; conf = []; cv.style.filter = ''; ['b1', 'b2', 'b3', 'b4', 'b5'].forEach(b => $(b).style.display = 'none'); $('card').style.display = 'none'; $('tip').textContent = ''; $('nav').style.display = 'none'; $('modes').style.display = 'flex'; }
+const SEQ = { mit: [0, 1, 2, 3, 4, 5, 6, 7], mei: [0, 1, 2, 13, 14, 15, 16, 17, 23, 18, 22, 19, 20, 21] };
+function completeStep(k) {
+    const Y = k == 4 ? mpos() : null;
+    ch.forEach((c, i) => {
+        const set = (x, y) => { c.x = c.tx = x; c.y = c.ty = y; };
+        if (k == 0) {
+            set(cx, cy + ZY[c.z] * ry + ((c.i % 2) ? 1 : -1) * .12 * ry);
+            c.ok = 1;
+        }
+        else if (k == 1)
+            c.rep = 1;
+        else if (k == 2)
+            c.cd = 1;
+        else if (k == 3 || k == 14 || k == 18)
+            c.att = 1;
+        else if (k == 4) {
+            set(cx, Y[i]);
+            c.ok = 1;
+        }
+        else if (k == 13) {
+            c.pr = 1;
+            c.ok = 1;
+            set(cx + c.side * 8, cy + (c.z ? .3 : -.3) * ry);
+        }
+        else if (k == 15) {
+            set(cx + c.side * 8, cy + (c.z ? .3 : -.3) * ry);
+            c.ok = 1;
+        }
+        else if (k == 22) {
+            set(cx + c.side * rx * .5 + (c.z ? .2 : -.1) * rx, cy);
+            c.ok = 1;
+        }
+    });
+    if (k == 2)
+        cond = 1;
+    if (k == 5 || k == 16 || k == 19)
+        sep = 1;
+    if (k == 6 || k == 17)
+        cyt = 1;
+    if (k == 20)
+        cy2 = 1;
+}
+function jumpStep(m, n) {
+    $('nav').style.display = 'none';
+    $('modes').style.display = 'none';
+    cv.style.filter = '';
+    mode = m;
+    init();
+    ph = 'play';
+    snaps = {};
+    dr = null;
+    ['b2', 'b3'].forEach(b => $(b).style.display = 'none');
+    $('tip').textContent = '';
+    for (const k of SEQ[m]) {
+        if (k == n)
+            break;
+        setStep(k, 1);
+        completeStep(k);
+    }
+    setStep(n, 1);
+    snd(520, .15, 'triangle', .08);
+}
+function buildNav() {
+    const T0 = (m) => SEQ[m].map(k => '<button data-m="' + m + '" data-k="' + k + '">' + T[k][0] + '</button>').join('');
+    $('nl1').innerHTML = '<button class="st" data-x="mitStart">▶ 시작: 싹트는 완두콩</button>' + T0('mit') + '<button class="st" data-x="mitEnd">🌱 결말: 뿌리가 자라요</button>';
+    $('nl2').innerHTML = '<button class="st" data-x="meiStart">▶ 시작: 꽃이 피어요</button>' + T0('mei') + '<button class="st" data-x="meiEnd">🌼 결말: 자가수분(수정)</button>';
+    document.querySelectorAll('#nav .ncols button').forEach(b => b.onclick = () => {
+        const x = b.dataset.x;
+        if (!x) {
+            jumpStep(b.dataset.m, +b.dataset.k);
+            return;
+        }
+        $('nav').style.display = 'none';
+        $('modes').style.display = 'none';
+        $('card').style.display = 'none';
+        ['b1', 'b2', 'b3', 'b4', 'b5'].forEach(i => $(i).style.display = 'none');
+        $('tip').textContent = '';
+        cv.style.filter = '';
+        conf = [];
+        outro.d = 0;
+        if (x == 'mitStart') {
+            mode = 'mit';
+            ph = 'intro';
+            zt = 0;
+        }
+        else if (x == 'meiStart') {
+            mode = 'mei';
+            ph = 'sprout';
+            sp = 0;
+        }
+        else if (x == 'mitEnd') {
+            mode = 'mit';
+            init();
+            ph = 'outro';
+            ot = 0;
+        }
+        else {
+            mode = 'mei';
+            init();
+            for (const k of SEQ.mei)
+                completeStep(k);
+            ch[0].side = -1;
+            ch[1].side = 1;
+            ch[2].side = Math.random() < .5 ? -1 : 1;
+            ch[3].side = -ch[2].side;
+            ph = 'fuse';
+            ft = 0;
+        }
+    });
+}
+$('nhome').onclick = goHome;
+$('nmenu').onclick = () => { buildNav(); $('nav').style.display = 'flex'; };
+$('nx').onclick = () => $('nav').style.display = 'none';
+function heal0() { $('tip').textContent = ''; }
+function play(m) { mode = m; init(); ph = 'play'; snaps = {}; step = 0; setStep(0, 1); }
+$('m1').onclick = () => { mode = 'mit'; ph = 'intro'; $('modes').style.display = 'none'; };
+$('m2').onclick = () => { mode = 'mei'; ph = 'sprout'; sp = 0; $('modes').style.display = 'none'; snd(300, .6, 'triangle', .1, 600); };
+// drawing helpers
+function wave(x, y, len, col, a, ph0) { g.globalAlpha = a; g.strokeStyle = col; g.lineWidth = 2.6; g.lineCap = 'round'; g.beginPath(); for (let k = 0; k <= 40; k++) {
+    const u = k / 40, px = x - len / 2 + u * len, py = y + Math.sin(u * 20 + ph0) * 6 + Math.sin(u * 47 + ph0 * 2) * 3;
+    k ? g.lineTo(px, py) : g.moveTo(px, py);
+} g.stroke(); }
+function badge0(x, y, n, a, r = 9) { g.globalAlpha = a; g.fillStyle = '#fde047'; g.strokeStyle = '#7a5d00'; g.lineWidth = r / 6; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); g.stroke(); g.fillStyle = '#3a2a00'; g.font = 'bold ' + r * 1.33 + 'px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(n, x, y + .5); }
+function strand(x, y, l, col, n, a, dbl) { if (a < .02)
+    return; const cc = cond > .05 ? '#9aa3b2' : col, os = dbl ? [-5, 5] : [0]; os.forEach((o, k) => { wave(x, y + o, l, cc, a, k); badge(x - l * .25, y + o, n, a, 8); }); }
+function badge(x, y, n, a, r = 9) { if (rt) {
+    g.save();
+    g.translate(x, y);
+    g.rotate(-1.5708);
+    badge0(0, 0, n, a, r);
+    g.restore();
+}
+else
+    badge0(x, y, n, a, r); }
+function arm(x, y, ang, len, w) { const ex = x + Math.cos(ang) * len, ey = y + Math.sin(ang) * len, px = -Math.sin(ang), py = Math.cos(ang); g.beginPath(); g.moveTo(x + px * 1.5, y + py * 1.5); g.lineTo(ex + px * w / 2, ey + py * w / 2); g.arc(ex, ey, w / 2, ang + 1.5708, ang - 1.5708, true); g.lineTo(x - px * 1.5, y - py * 1.5); g.closePath(); g.fill(); }
+function X(x, y, l, col, n, a, fd) {
+    const P = Math.PI, w = Math.max(5, l * .13);
+    g.globalAlpha = a;
+    g.fillStyle = col;
+    const U = P / 2;
+    let A = fd == 0 ? (m2 ? [[P + .42, .5, 1], [P - .42, .5, 1], [.42, .5, 0], [-.42, .5, 0]] : [[-U - .42, .5, 1], [-U + .42, .5, 1], [U - .42, .5, 0], [U + .42, .5, 0]]) : [[P + .95, .42, 0], [P - .95, .42, 0], [P + .35, .58, 1], [P - .35, .58, 1]];
+    if (fd == 1)
+        A = A.map(r => [P - r[0], r[1], r[2]]);
+    A.forEach(r => arm(x, y, r[0], l * r[1], w));
+    A.forEach(r => { if (r[2])
+        badge(x + Math.cos(r[0]) * l * r[1] * .62, y + Math.sin(r[0]) * l * r[1] * .62, n, a, 7); });
+    g.globalAlpha = a;
+    g.fillStyle = '#fff';
+    g.strokeStyle = '#333';
+    g.lineWidth = 1;
+    g.beginPath();
+    g.arc(x, y, Math.max(4, l * .06), 0, 7);
+    g.fill();
+    g.stroke();
+}
+function V(x, y, l, col, n, d, a, vt) { if (vt) {
+    g.globalAlpha = a;
+    g.strokeStyle = col;
+    g.lineWidth = Math.min(8, l * .11 + 2);
+    g.lineJoin = 'round';
+    g.lineCap = 'round';
+    const ey = y - d * l * .45, w = l * .22;
+    g.beginPath();
+    g.moveTo(x - w, ey);
+    g.lineTo(x, y);
+    g.lineTo(x + w, ey);
+    g.stroke();
+    g.fillStyle = '#fff';
+    g.beginPath();
+    g.arc(x, y, 3, 0, 7);
+    g.fill();
+    badge(x - w * .55, y - d * l * .25, n, a, 7);
+    return;
+} g.globalAlpha = a; g.strokeStyle = col; g.lineWidth = Math.min(8, l * .11 + 2); g.lineJoin = 'round'; g.lineCap = 'round'; const ex = x - d * l * .2, h = l * .45; g.beginPath(); g.moveTo(ex, y - h); g.lineTo(x, y); g.lineTo(ex, y + h); g.stroke(); g.fillStyle = '#fff'; g.beginPath(); g.arc(x, y, 3, 0, 7); g.fill(); badge(x - d * l * .12, y - h * .6, n, a, 7); }
+function drawCh(c) { const sv = cond; cond = c.cd; drawCh0(c); cond = sv; }
+function drawCh0(c) {
+    const fd = mode == 'mei' && c.pr && step >= 13 && step <= 16 && sep == 0 ? c.side : 0, l = LS(c), lc = LC(c), D = m2 ? ry * .5 : rx * .5, a = 1 - cond;
+    if ((mode == 'mit' || m2) && sep > 0) {
+        for (const d of [-1, 1]) {
+            const x = m2 ? c.x : c.x + d * sep * D, y = m2 ? c.y + d * sep * D : c.y + d * 4;
+            strand(x, y, l, c.c, c.n, a, 0);
+            if (cond > .02)
+                V(x, y, lc, c.c, c.n, d, cond, m2);
+        }
+    }
+    else {
+        const x = c.x + (sep > 0 ? c.side * sep * D : 0);
+        if (!c.rep)
+            strand(x, c.y, l, c.c, c.n, 1, 0);
+        else {
+            strand(x, c.y, l, c.c, c.n, a, 1);
+            if (cond > .02)
+                X(x, c.y, lc, c.c, c.n, cond, fd);
+        }
+    }
+}
+function ell(x, y, a, b, fill, st, dash, al, s, e) { g.globalAlpha = al; g.beginPath(); g.ellipse(x, y, a, b, 0, 0, 7); if (fill) {
+    g.fillStyle = fill;
+    g.fill();
+} if (st) {
+    g.beginPath();
+    g.ellipse(x, y, a, b, 0, s || 0, e == null ? 7 : e);
+    g.setLineDash(dash || []);
+    g.strokeStyle = st;
+    g.lineWidth = 3;
+    g.stroke();
+    g.setLineDash([]);
+} }
+function rrect(x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+function plantCell() {
+    const x = cx - rx - 8, y = cy - ry - 8, w = 2 * rx + 16, h = 2 * ry + 16;
+    g.globalAlpha = 1;
+    rrect(x - 12, y - 12, w + 24, h + 24, 24);
+    g.fillStyle = '#4d7c2a';
+    g.fill();
+    g.strokeStyle = '#2f4f1a';
+    g.lineWidth = 2;
+    g.stroke();
+    rrect(x, y, w, h, 14);
+    g.fillStyle = '#16241a';
+    g.fill();
+    g.fillStyle = 'rgba(163,230,53,.06)';
+    g.fill();
+    g.strokeStyle = '#a3e635';
+    g.lineWidth = 2.5;
+    g.stroke();
+    g.fillStyle = '#a3d977';
+    g.font = '700 13px sans-serif';
+    g.textAlign = 'left';
+    g.fillText('세포벽', x - 8, y - 17);
+    if ((step == 6 || step == 17) && cyt < 1) {
+        g.setLineDash([6, 6]);
+        g.strokeStyle = 'rgba(163,230,53,.45)';
+        g.lineWidth = 2;
+        g.beginPath();
+        g.moveTo(cx, y + 4);
+        g.lineTo(cx, y + h - 4);
+        g.stroke();
+        g.setLineDash([]);
+    }
+    if (cyt > 0) {
+        const hh = cyt * (h / 2), N = 26;
+        for (let k = -N; k <= N; k++) {
+            const yy = cy + k * (h / 2) / N, d = Math.abs(yy - cy);
+            if (d <= hh)
+                continue;
+            if (d <= hh + h * .16 && cyt < 1) {
+                g.globalAlpha = 1 - (d - hh) / (h * .16);
+                g.fillStyle = '#d9f99d';
+                g.beginPath();
+                g.arc(cx + Math.sin(k * 1.7) * 5, yy, 4, 0, 7);
+                g.fill();
+                g.globalAlpha = 1;
+            }
+        }
+        if (cyt < 1) {
+            g.fillStyle = '#bef264';
+            g.fillRect(cx - 4, cy - hh, 8, 2 * hh);
+        }
+        else {
+            g.fillStyle = '#4d7c2a';
+            g.fillRect(cx - 7, y, 14, h);
+            g.strokeStyle = '#a3e635';
+            g.lineWidth = 2.5;
+            g.beginPath();
+            g.moveTo(cx - 8, y);
+            g.lineTo(cx - 8, y + h);
+            g.moveTo(cx + 8, y);
+            g.lineTo(cx + 8, y + h);
+            g.stroke();
+        }
+    }
+    if (step == 20 && cy2 < 1) {
+        g.setLineDash([6, 6]);
+        g.strokeStyle = 'rgba(163,230,53,.45)';
+        g.lineWidth = 2;
+        g.beginPath();
+        g.moveTo(x + 4, cy);
+        g.lineTo(cx - 10, cy);
+        g.moveTo(cx + 10, cy);
+        g.lineTo(x + w - 4, cy);
+        g.stroke();
+        g.setLineDash([]);
+    }
+    if (m2 && cy2 > 0)
+        for (const d of [-1, 1]) {
+            const x0 = d < 0 ? x : cx + 8, x1 = d < 0 ? cx - 8 : x + w, mx = (x0 + x1) / 2, half = (x1 - x0) / 2, hw = cy2 * half, N = 14;
+            for (let k = -N; k <= N; k++) {
+                const xx = mx + k * half / N, dd = Math.abs(xx - mx);
+                if (dd <= hw)
+                    continue;
+                if (dd <= hw + half * .3 && cy2 < 1) {
+                    g.globalAlpha = 1 - (dd - hw) / (half * .3);
+                    g.fillStyle = '#d9f99d';
+                    g.beginPath();
+                    g.arc(xx, cy + Math.sin(k * 1.7) * 5, 4, 0, 7);
+                    g.fill();
+                    g.globalAlpha = 1;
+                }
+            }
+            if (cy2 < 1) {
+                g.fillStyle = '#bef264';
+                g.fillRect(mx - hw, cy - 4, 2 * hw, 8);
+            }
+            else {
+                g.fillStyle = '#4d7c2a';
+                g.fillRect(x0, cy - 7, x1 - x0, 14);
+                g.strokeStyle = '#a3e635';
+                g.lineWidth = 2.5;
+                g.beginPath();
+                g.moveTo(x0, cy - 8);
+                g.lineTo(x1, cy - 8);
+                g.moveTo(x0, cy + 8);
+                g.lineTo(x1, cy + 8);
+                g.stroke();
+            }
+        }
+}
+function cellDraw() {
+    const F = 'rgba(245,197,24,.07)', S = '#f5c518';
+    if (1)
+        plantCell();
+    else if (m2 && cy2 > 0)
+        cell4(F, S);
+    else if (cyt <= 0)
+        ell(cx, cy, rx, ry, F, S, 0, 1);
+    else {
+        const o = rx * .5 * cyt, r = rx - o, f = Math.acos(Math.min(1, o / r)), t1 = Math.PI - f;
+        ell(cx - o, cy, r, ry, F, null, 0, 1);
+        ell(cx + o, cy, r, ry, F, null, 0, 1);
+        ell(cx - o, cy, r, ry, 0, S, 0, 1, f, 2 * Math.PI - f);
+        ell(cx + o, cy, r, ry, 0, S, 0, 1, -t1, t1);
+    }
+    if (step <= 2)
+        ell(cx, cy, rx * .78, ry * .82, 'rgba(255,255,255,.03)', '#7a8aa8', [6, 5], (1 - cond) * .8);
+    if (step == 0)
+        for (let z = 0; z < 2; z++) {
+            const zy = cy + ZY[z] * ry;
+            g.globalAlpha = 1;
+            g.setLineDash([6, 5]);
+            g.strokeStyle = '#5b6b8c';
+            g.lineWidth = 1.5;
+            g.save();
+            g.beginPath();
+            g.ellipse(cx, cy, rx - 4, ry - 4, 0, 0, 7);
+            g.clip();
+            const t = z ? cy + 6 : cy - ry * .86, hh = ry * .8, ww = 1.5 * rx;
+            g.fillStyle = z ? 'rgba(34,197,94,.06)' : 'rgba(239,68,68,.06)';
+            g.fillRect(cx - ww / 2, t, ww, hh);
+            g.strokeRect(cx - ww / 2, t, ww, hh);
+            g.restore();
+            g.setLineDash([]);
+            g.fillStyle = '#8fa0c0';
+            g.font = '700 12px sans-serif';
+            g.textAlign = 'center';
+            g.fillText(z ? '짧은 염색체 구역 (B, b)' : '긴 염색체 구역 (A, a)', cx, z ? t + hh - 6 : t + 14);
+        }
+    if (step >= 3 && cyt < 1) {
+        g.globalAlpha = 1 - cyt;
+        for (const p of []) {
+            const x = cx + p * rx * .86;
+            g.fillStyle = '#e2e8f0';
+            g.beginPath();
+            g.arc(x, cy, 6, 0, 7);
+            g.fill();
+            g.strokeStyle = '#94a3b8';
+            g.lineWidth = 1.5;
+            for (let k = 0; k < 8; k++) {
+                g.beginPath();
+                g.moveTo(x, cy);
+                g.lineTo(x + Math.cos(k * .785) * 13, cy + Math.sin(k * .785) * 13);
+                g.stroke();
+            }
+        }
+        const D = rx * .5;
+        g.strokeStyle = 'rgba(200,210,230,.55)';
+        g.lineWidth = 1.3;
+        ch.forEach(c => { if (!c.att)
+            return; const us = mode == 'mit' && sep > 0 ? [{ x: c.x - sep * D, d: -1 }, { x: c.x + sep * D, d: 1 }] : sep > 0 ? [{ x: c.x + c.side * sep * D, d: c.side }] : [{ x: c.x, d: mode == 'mei' ? c.side : 0 }]; us.forEach(u => [-1, 1].forEach(p => { if (u.d == 0 || u.d == p) {
+            g.globalAlpha = 1 - cyt;
+            g.beginPath();
+            g.moveTo(cx + p * rx * .86, cy);
+            g.lineTo(u.x, c.y);
+            g.stroke();
+        } })); });
+    }
+    if (m2 && (step < 21 || step == 22) && cy2 < 1) {
+        g.globalAlpha = 1 - cy2;
+        g.strokeStyle = 'rgba(200,210,230,.5)';
+        g.lineWidth = 1.3;
+        ch.forEach(c => { if (!c.att)
+            return; const dc = cx + c.side * rx * .5; pts(c).forEach((q, u) => [-1, 1].forEach(p => { if (sep == 0 || u == (p < 0 ? 0 : 1)) {
+            g.beginPath();
+            g.moveTo(dc, cy + p * ry * .88);
+            g.lineTo(q[0], q[1]);
+            g.stroke();
+        } })); });
+        if (step == 22) {
+            g.globalAlpha = 1;
+            g.setLineDash([7, 6]);
+            g.strokeStyle = '#8ecae6';
+            g.lineWidth = 2;
+            g.beginPath();
+            g.moveTo(cx - rx + 6, cy);
+            g.lineTo(cx + rx - 6, cy);
+            g.stroke();
+            g.setLineDash([]);
+        }
+    }
+    if (step == 4 || step == 15) {
+        g.globalAlpha = .9;
+        g.setLineDash([7, 6]);
+        g.strokeStyle = '#8ecae6';
+        g.lineWidth = 2;
+        g.beginPath();
+        g.moveTo(cx, cy - ry + 8);
+        g.lineTo(cx, cy + ry - 8);
+        g.stroke();
+        g.setLineDash([]);
+        g.fillStyle = '#8ecae6';
+        g.font = '700 13px sans-serif';
+        g.textAlign = 'center';
+        g.fillText('적도면', cx, cy - ry - 8);
+    }
+    if (step == 22) {
+        g.globalAlpha = 1;
+        g.fillStyle = '#8ecae6';
+        g.font = '700 13px sans-serif';
+        g.textAlign = 'left';
+        g.fillText('적도면', cx + rx + 4 > W - 40 ? cx + rx - 46 : cx + rx + 4, cy - 6);
+    }
+    ch.forEach(drawCh);
+    if (mode == 'mei' && step >= 13 && step <= 16 && sep == 0)
+        [[0, 1], [2, 3]].forEach(([a, b]) => { const A = ch[a], B = ch[b]; if (A.pr && B.pr) {
+            const mx = (A.x + B.x) / 2;
+            g.globalAlpha = 1;
+            g.fillStyle = '#cbd5e1';
+            g.font = '11px sans-serif';
+            g.textAlign = 'center';
+            g.fillText('2가염색체', mx, A.y - LC(A) * .55 - 8);
+        } });
+    if (step == 2 || step == 7)
+        ch.forEach(c => { if (step == 2 ? c.cd < 1 : c.cd > 0)
+            pts(c).forEach(q => { g.globalAlpha = .35 + .35 * Math.sin(pt * 5); g.strokeStyle = '#fff'; g.setLineDash([4, 4]); g.lineWidth = 1.5; g.beginPath(); g.ellipse(q[0], q[1], EX(c) / 2 + 8, 22, 0, 0, 7); g.stroke(); g.setLineDash([]); }); });
+    if (step == 3 || step == 14 || step == 18)
+        ch.forEach(c => { if (!c.att) {
+            g.globalAlpha = .5 + .5 * Math.sin(pt * 6);
+            g.strokeStyle = '#fff';
+            g.lineWidth = 2;
+            g.beginPath();
+            g.arc(c.x, c.y, 15, 0, 7);
+            g.stroke();
+        } });
+    if (step == 21 || (step == 99 && mode == 'mei')) {
+        const e = Math.max(0, Math.min(1, (.45 - cond) / .45));
+        for (const d of [-1, 1])
+            for (const p of [-1, 1])
+                ell(cx + d * rx * .5, cy + p * ry * .5, rx * .4, ry * .42, 'rgba(142,202,230,.06)', '#8ecae6', 0, e);
+    }
+    if (step == 7 || (step == 99 && mode == 'mit')) {
+        const e = Math.max(0, Math.min(1, (.45 - cond) / .45));
+        for (const d of [-1, 1])
+            ell(cx + d * rx * .5, cy, rx * .46, ry * .8, 'rgba(142,202,230,.06)', '#8ecae6', 0, e);
+    }
+    ploidy();
+    g.globalAlpha = 1;
+}
+// pea
+function peaGeom() { const R = Math.min(W, H) * .22, px = W / 2, py = H * .33, bx = px - R * .18, by = py + R * .93; return { R, px, py, bx, by, wx: bx + Math.sin(1.6) * R * .06, wy: by + R * .5 - R * .12 }; }
+function rootPts(grow) { const { R, bx, by } = peaGeom(), L = R * (.5 + 1.05 * grow), o = []; for (let i = 0; i <= 30; i++) {
+    const t = i / 30;
+    o.push([bx + Math.sin(t * 1.6) * R * .12 * t, by + L * t]);
+} return o; }
+function pea(s, grow, pulse) {
+    const { R, px, py, bx, by, wx, wy } = peaGeom();
+    g.save();
+    g.translate(wx, wy);
+    g.scale(s, s);
+    g.translate(-wx, -wy);
+    g.globalAlpha = 1;
+    const P = rootPts(grow), n = P.length - 1, wd = t => R * .085 * (1 - .5 * t);
+    g.beginPath();
+    for (let i = 0; i <= n; i++) {
+        const t = i / n, a = i < n ? Math.atan2(P[i + 1][1] - P[i][1], P[i + 1][0] - P[i][0]) : Math.atan2(P[i][1] - P[i - 1][1], P[i][0] - P[i - 1][0]), w = wd(t);
+        const x = P[i][0] + Math.cos(a + 1.5708) * w, y = P[i][1] + Math.sin(a + 1.5708) * w;
+        i ? g.lineTo(x, y) : g.moveTo(x, y);
+    }
+    for (let i = n; i >= 0; i--) {
+        const t = i / n, a = i < n ? Math.atan2(P[i + 1][1] - P[i][1], P[i + 1][0] - P[i][0]) : Math.atan2(P[i][1] - P[i - 1][1], P[i][0] - P[i - 1][0]), w = wd(t);
+        g.lineTo(P[i][0] - Math.cos(a + 1.5708) * w, P[i][1] - Math.sin(a + 1.5708) * w);
+    }
+    g.closePath();
+    const rg = g.createLinearGradient(bx - R * .1, 0, bx + R * .1, 0);
+    rg.addColorStop(0, '#e9e2c8');
+    rg.addColorStop(.5, '#fbf8ee');
+    rg.addColorStop(1, '#d9cfa8');
+    g.fillStyle = rg;
+    g.fill();
+    g.strokeStyle = '#b9ab7c';
+    g.lineWidth = 2;
+    g.stroke();
+    const tip = P[n], L = P[n][1] - by;
+    g.save();
+    g.clip();
+    g.strokeStyle = 'rgba(150,130,80,.35)';
+    g.lineWidth = 1;
+    for (let y = tip[1] - R * .42; y < tip[1] - R * .06; y += R * .035) {
+        g.beginPath();
+        g.moveTo(tip[0] - R * .12, y);
+        g.lineTo(tip[0] + R * .12, y);
+        g.stroke();
+    }
+    g.restore();
+    if (grow > .15) {
+        g.strokeStyle = 'rgba(240,236,220,.85)';
+        g.lineWidth = 1.2;
+        for (let i = Math.floor(n * .25); i < n * .7; i++) {
+            const [x, y] = P[i];
+            for (const d of [-1, 1]) {
+                g.beginPath();
+                g.moveTo(x + d * wd(i / n), y);
+                g.lineTo(x + d * (wd(i / n) + R * .09), y + R * .03);
+                g.stroke();
+            }
+        }
+    }
+    g.beginPath();
+    g.ellipse(tip[0], tip[1] - R * .01, R * .05, R * .06, 0, 0, 7);
+    g.fillStyle = '#e8d48e';
+    g.fill();
+    g.strokeStyle = '#b39a4a';
+    g.lineWidth = 1.5;
+    g.stroke();
+    const gr = g.createRadialGradient(px - R * .3, py - R * .3, R * .1, px, py, R);
+    gr.addColorStop(0, '#fff59d');
+    gr.addColorStop(.5, '#f5c518');
+    gr.addColorStop(1, '#b88a00');
+    g.fillStyle = gr;
+    g.beginPath();
+    g.arc(px, py, R, 0, 7);
+    g.fill();
+    g.fillStyle = 'rgba(255,255,255,.35)';
+    g.beginPath();
+    g.ellipse(px - R * .4, py - R * .5, R * .2, R * .1, -.6, 0, 7);
+    g.fill();
+    g.strokeStyle = '#8a6a10';
+    g.lineWidth = 2.5;
+    g.beginPath();
+    g.moveTo(bx - R * .16, by - R * .06);
+    g.quadraticCurveTo(bx, by + R * .02, bx + R * .16, by - R * .05);
+    g.stroke();
+    g.fillStyle = '#8a5a1a';
+    g.beginPath();
+    g.ellipse(px + R * .42, py + R * .62, R * .08, R * .04, -.6, 0, 7);
+    g.fill();
+    const my = tip[1] - R * .14;
+    if (pulse) {
+        g.strokeStyle = 'rgba(255,255,255,' + (.5 + .5 * Math.sin(pt * 5)) + ')';
+        g.lineWidth = 2.5;
+        g.beginPath();
+        g.arc(tip[0], my, R * (.16 + .03 * Math.sin(pt * 5)), 0, 7);
+        g.stroke();
+    }
+    if (s < 1.5 && (pulse || grow >= .99)) {
+        g.font = '700 ' + Math.max(13, R * .085) + 'px sans-serif';
+        g.textAlign = 'left';
+        g.fillStyle = '#ffe37a';
+        g.fillText('← 어린뿌리(첫 뿌리)', bx + R * .16, by + L * .35);
+        g.fillText('← 뿌리 끝 분열 조직(생장점)', tip[0] + R * .2, my);
+        g.fillStyle = '#cbd5e1';
+        g.fillText('← 뿌리골무', tip[0] + R * .12, tip[1] + R * .04);
+    }
+    g.restore();
+}
+function bgCell(a) { g.globalAlpha = a; const r = g.createRadialGradient(cx, cy, 10, cx, cy, Math.max(W, H) * .7); r.addColorStop(0, mode == 'mit' ? '#14261a' : '#2a2110'); r.addColorStop(1, '#0e1116'); g.fillStyle = r; g.fillRect(0, 0, W, H); g.globalAlpha = 1; }
+const ez = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+function loop(ts) {
+    requestAnimationFrame(loop);
+    gauge();
+    const dt = Math.min(.05, (ts - lastT) / 1000 || 0);
+    lastT = ts;
+    pt += dt;
+    g.globalAlpha = 1;
+    g.fillStyle = '#0e1116';
+    g.fillRect(0, 0, W, H);
+    if (ph == 'choose') {
+        pea(1, 0, 0);
+    }
+    else if (ph == 'intro') {
+        pea(1, 0, 1);
+        g.fillStyle = '#e8ecf2';
+        g.font = '600 16px sans-serif';
+        g.textAlign = 'center';
+        g.fillText('🌱 싹이 트는 완두콩 (Pisum sativum) — 첫 뿌리가 삐죽 나왔어요', W / 2, H * .07 + env0());
+        g.font = '14px sans-serif';
+        g.fillStyle = '#ffe37a';
+        g.fillText('식물은 뿌리·줄기 끝의 분열 조직에서 체세포 분열이 활발해요. 빛나는 뿌리 끝을 눌러 들어가 보세요', W / 2, H * .95);
+    }
+    else if (ph == 'zin') {
+        zt = Math.min(1, zt + dt / 1.6);
+        const e = ez(zt), { wx, wy } = peaGeom();
+        cv.style.filter = 'blur(' + (Math.sin(zt * Math.PI) * 6).toFixed(1) + 'px)';
+        bgCell(e);
+        g.globalAlpha = Math.max(0, 1 - Math.max(0, zt - .5) * 2);
+        pea(1 + e * 11, 0, 0);
+        if (zt >= 1) {
+            cv.style.filter = '';
+            play('mit');
+        }
+    }
+    else if (ph == 'sprout') {
+        sp = Math.min(1, sp + dt / 8);
+        scene(Math.min(1, sp / .5), Math.max(0, Math.min(1, (sp - .5) / .2)));
+        g.fillStyle = '#e8ecf2';
+        g.font = '600 16px sans-serif';
+        g.textAlign = 'center';
+        g.fillText('🌱 완두콩에서 싹이 나 쑥쑥 자라 꽃이 핍니다', W / 2, H * .08);
+        if (sp >= 1) {
+            ph = 'fzoom';
+            fz = 0;
+            snd(400, 1, 'sine', .1, 900);
+        }
+    }
+    else if (ph == 'fzoom') {
+        fz = Math.min(1, fz + dt / 2);
+        const e = ez(fz), a = anth();
+        cv.style.filter = 'blur(' + (Math.sin(fz * Math.PI) * 6).toFixed(1) + 'px)';
+        cam(1 + e * 13, a[0], a[1]);
+        scene(1, 1, 1 + e * 13);
+        g.restore();
+        bgCell(e);
+        g.fillStyle = '#ffe37a';
+        g.font = '600 15px sans-serif';
+        g.textAlign = 'center';
+        g.fillText('꽃밥(수술) 속 생식모세포로 줌인!', W / 2, H * .08);
+        if (fz >= 1) {
+            cv.style.filter = '';
+            play('mei');
+        }
+    }
+    else if (ph == 'fuse')
+        fuse(dt);
+    else if (ph == 'play') {
+        bgCell(1);
+        cellDraw();
+    }
+    else if (ph == 'outro') {
+        ot = Math.min(1, ot + dt / 5);
+        const zo = Math.min(1, ot / .4), h = Math.max(0, (ot - .4) / .6);
+        cv.style.filter = 'blur(' + (Math.sin(zo * Math.PI) * 5).toFixed(1) + 'px)';
+        bgCell(1 - zo);
+        pea(1 + (1 - ez(zo)) * 11, ez(h), 0);
+        if (ot >= 1 && !conf.length && !outro.d) {
+            outro.d = 1;
+            cv.style.filter = '';
+            snd(700, .4, 'sine', .2, 250);
+            setTimeout(() => snd(900, .3, 'sine', .15, 400), 200);
+            for (let i = 0; i < 90; i++)
+                conf.push({ x: W / 2, y: H * .3, vx: (Math.random() - .5) * 9, vy: -Math.random() * 10 - 2, c: ['#f5c518', '#ef4444', '#3b82f6', '#22c55e', '#fff'][i % 5] });
+            $('b3').style.display = 'inline-block';
+        }
+        if (ot >= 1) {
+            g.globalAlpha = 1;
+            g.fillStyle = '#ffe37a';
+            g.font = '700 22px sans-serif';
+            g.textAlign = 'center';
+            g.fillText('🎉 뿌리가 쑥 자랐어요!', W / 2, H * .07);
+            g.font = '13px sans-serif';
+            g.fillStyle = '#cbd5e1';
+            g.fillText('뿌리 끝 분열 조직(생장점)에서 체세포 분열로 세포 수가 늘어 뿌리가 길어졌어요', W / 2, H * .07 + 24);
+        }
+        conf.forEach(p => { p.x += p.vx; p.y += p.vy; p.vy += .35; g.fillStyle = p.c; g.fillRect(p.x, p.y, 6, 9); });
+    }
+}
+function env0() { return 0; }
+const outro = { d: 0 };
+$('b3').addEventListener('click', () => { outro.d = 0; });
+requestAnimationFrame(loop);
+function cell4(F, S) { const o = ry * .5 * cy2, b = ry - o, f = Math.asin(Math.min(1, o / b)); for (const d of [-1, 1]) {
+    const x = cx + d * rx * .5;
+    ell(x, cy - o, rx * .5, b, F, null, 0, 1);
+    ell(x, cy + o, rx * .5, b, F, null, 0, 1);
+    ell(x, cy - o, rx * .5, b, 0, S, 0, 1, Math.PI - f, 2 * Math.PI + f);
+    ell(x, cy + o, rx * .5, b, 0, S, 0, 1, -f, Math.PI + f);
+} }
+function lbl(x, y, t, sz = 20) { g.globalAlpha = 1; g.font = '800 ' + sz + 'px sans-serif'; const w = g.measureText(t).width + 18; g.save(); g.shadowColor = 'rgba(0,0,0,.6)'; g.shadowBlur = 8; g.shadowOffsetY = 2; g.fillStyle = '#f5c518'; g.beginPath(); g.roundRect ? g.roundRect(x - w / 2, y - sz * .75, w, sz * 1.5, sz * .75) : g.rect(x - w / 2, y - sz * .75, w, sz * 1.5); g.fill(); g.restore(); g.fillStyle = '#1a1406'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(t, x, y + 1); g.textBaseline = 'alphabetic'; }
+function ploidy() {
+    const by = cy + ry + 20, s2 = rx * .5;
+    if (mode == 'mit') {
+        if (cyt < .5)
+            lbl(cx, by, '2n=4');
+        else
+            for (const d of [-1, 1])
+                lbl(cx + d * s2, by, '2n=4');
+        return;
+    }
+    const four = cy2 >= .5 || step == 21 || step == 99, two = !four && (m2 || step == 23 || (step == 17 && cyt >= .5));
+    if (four) {
+        const o = ry * .5 * Math.min(1, step == 20 ? cy2 : 1), b = ry - o;
+        for (const d of [-1, 1])
+            for (const v of [-1, 1])
+                lbl(cx + d * s2, cy + v * (o + b * .5), 'n=2', 16);
+    }
+    else if (two)
+        for (const d of [-1, 1])
+            lbl(cx + d * s2, by, 'n=2');
+    else
+        lbl(cx, by, '2n=4');
+}
+function cam(k, fx, fy) { g.save(); g.translate(W / 2, H / 2); g.scale(k, k); g.translate(-fx, -fy); }
+function fg() { return { fr: Math.min(W, H) * .14, hx: W / 2, hy: H * .4 }; }
+function anth() { const { fr, hx, hy } = fg(); return [hx - fr * .55, hy - fr * .25]; }
+function ovy() { const { fr, hx, hy } = fg(); return [hx, hy + fr * .55]; }
+function scene(gp, bl, sc = 1) {
+    const { fr, hx, hy } = fg(), by = H * .85, sh = (by - hy) * gp, ty = by - sh;
+    g.globalAlpha = 1;
+    g.fillStyle = '#4a3320';
+    g.fillRect(-W, by, W * 3, H);
+    g.fillStyle = '#f5c518';
+    g.beginPath();
+    g.ellipse(W / 2, by + 2, 14, 9, 0, Math.PI, 0);
+    g.fill();
+    g.strokeStyle = '#4ade80';
+    g.lineWidth = 6;
+    g.lineCap = 'round';
+    g.beginPath();
+    g.moveTo(W / 2, by);
+    g.quadraticCurveTo(W / 2 + 12, by - sh / 2, W / 2, ty);
+    g.stroke();
+    if (gp > .3)
+        for (const s of [-1, 1]) {
+            g.fillStyle = '#22c55e';
+            g.beginPath();
+            g.ellipse(W / 2 + s * 22, by - sh * .35, 22 * Math.min(1, gp), 9 * Math.min(1, gp), -s * .5, 0, 7);
+            g.fill();
+        }
+    if (bl > 0) {
+        const r = fr * bl;
+        for (let k = 0; k < 5; k++) {
+            const a = k / 5 * 6.283 - 1.57;
+            g.globalAlpha = 1;
+            g.fillStyle = k % 2 ? '#fdf2f8' : '#fce7f3';
+            g.strokeStyle = '#f9a8d4';
+            g.lineWidth = Math.max(1, r * .02);
+            g.beginPath();
+            g.ellipse(hx + Math.cos(a) * r * .75, hy + Math.sin(a) * r * .75, r * .55, r * .32, a, 0, 7);
+            g.fill();
+            g.stroke();
+        }
+        g.fillStyle = '#14532d';
+        g.beginPath();
+        g.arc(hx, hy + r * .05, r * .62, 0, 7);
+        g.fill();
+        g.fillStyle = '#65a30d';
+        g.strokeStyle = '#1a2e05';
+        g.lineWidth = Math.max(1, r * .025);
+        g.beginPath();
+        g.ellipse(hx, hy + r * .55, r * .26, r * .32, 0, 0, 7);
+        g.fill();
+        g.stroke();
+        g.strokeStyle = '#a3e635';
+        g.lineWidth = Math.max(1.5, r * .09);
+        g.lineCap = 'round';
+        g.beginPath();
+        g.moveTo(hx, hy + r * .26);
+        g.lineTo(hx, hy - r * .42);
+        g.stroke();
+        g.fillStyle = '#d9f99d';
+        g.strokeStyle = '#365314';
+        g.lineWidth = Math.max(1, r * .025);
+        g.beginPath();
+        g.ellipse(hx, hy - r * .5, r * .17, r * .1, 0, 0, 7);
+        g.fill();
+        g.stroke();
+        g.fillStyle = '#65a30d';
+        for (let q = -2; q <= 2; q++) {
+            g.beginPath();
+            g.arc(hx + q * r * .06, hy - r * .52, r * .018, 0, 7);
+            g.fill();
+        }
+        for (const s of [-1, 1]) {
+            g.strokeStyle = '#fef3c7';
+            g.lineWidth = Math.max(1, r * .035);
+            g.beginPath();
+            g.moveTo(hx + s * r * .12, hy + r * .3);
+            g.quadraticCurveTo(hx + s * r * .5, hy + r * .15, hx + s * r * .55, hy - r * .18);
+            g.stroke();
+            g.fillStyle = '#f59e0b';
+            g.strokeStyle = '#78350f';
+            g.lineWidth = Math.max(1, r * .025);
+            g.beginPath();
+            g.ellipse(hx + s * r * .55, hy - r * .26, r * .1, r * .15, 0, 0, 7);
+            g.fill();
+            g.stroke();
+            g.strokeStyle = '#78350f';
+            g.beginPath();
+            g.moveTo(hx + s * r * .55, hy - r * .4);
+            g.lineTo(hx + s * r * .55, hy - r * .12);
+            g.stroke();
+        }
+        if (bl >= 1 && sc < 4) {
+            const f = Math.max(9, 13 / sc);
+            g.globalAlpha = Math.max(0, 1 - (sc - 1) / 3);
+            g.font = '700 ' + f + 'px sans-serif';
+            g.textAlign = 'left';
+            g.lineWidth = 1;
+            [['암술머리', hx + r * .2, hy - r * .62, '#d9f99d', hx + r * .12, hy - r * .52], ['암술대', hx + r * .95, hy + r * .05, '#a3e635', hx + r * .05, hy - r * .05], ['씨방', hx + r * .95, hy + r * .6, '#84cc16', hx + r * .26, hy + r * .55], ['꽃밥(수술)', hx - r * 1.55, hy - r * .75, '#f59e0b', hx - r * .6, hy - r * .35], ['수술대', hx - r * 1.4, hy + r * .35, '#fef3c7', hx - r * .45, hy + r * .12]].forEach(t => { g.strokeStyle = t[3]; g.beginPath(); g.moveTo(t[1] + (t[1] < hx ? g.measureText(t[0]).width : 0), t[2] - f * .3); g.lineTo(t[4], t[5]); g.stroke(); g.lineWidth = 3; g.strokeStyle = '#000'; g.strokeText(t[0], t[1], t[2]); g.lineWidth = 1; g.fillStyle = t[3]; g.fillText(t[0], t[1], t[2]); });
+            g.globalAlpha = 1;
+        }
+    }
+}
+function mini(x, y, l, k) { const n = l.length; l.forEach((c, i) => { const yy = y + (i - (n - 1) / 2) * 7 * k, ln = c.len * 14 * k; g.globalAlpha = 1; g.strokeStyle = c.c; g.lineWidth = 2.4 * k; g.lineCap = 'round'; g.beginPath(); g.moveTo(x - ln / 2, yy); g.lineTo(x + ln / 2, yy); g.stroke(); badge(x - ln * .2, yy, c.n, 1, 3.2 * k); }); }
+function dot(x, y, r, f, s) { g.globalAlpha = 1; g.fillStyle = f; g.strokeStyle = s; g.lineWidth = r / 9; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); g.stroke(); }
+function fuse(dt) {
+    const SC = 14 - 11 * ez(Math.min(1, ft / .2));
+    ft = Math.min(1, ft + dt / 11);
+    const { fr, hx, hy } = fg(), a = anth(), o = ovy(), k = fr / 55, e1 = ez(Math.min(1, ft / .2));
+    cv.style.filter = ft < .2 ? 'blur(' + (Math.sin(ft / .2 * Math.PI) * 5).toFixed(1) + 'px)' : '';
+    cam(SC, a[0] + (hx - a[0]) * e1, a[1] + (hy + fr * .2 - a[1]) * e1);
+    scene(1, 1, SC);
+    const sp1 = ch.filter(c => c.side == -1), eg = ch.filter(c => c.side == 1), t = Math.max(0, Math.min(1, (ft - .2) / .5)), u = Math.max(0, Math.min(1, (ft - .7) / .15));
+    if (ft < .85) {
+        dot(o[0], o[1], fr * .24, '#fce7f3', '#ec4899');
+        mini(o[0], o[1], eg, k);
+        const tx = o[0] - fr * .24 * (1 - u), px = a[0] + (tx - a[0]) * t + Math.sin(t * Math.PI) * fr * .5, py = a[1] + (o[1] - a[1]) * t;
+        g.globalAlpha = .8;
+        g.strokeStyle = '#d9f99d';
+        g.lineWidth = 1.5 * k;
+        g.setLineDash([4 * k, 3 * k]);
+        g.beginPath();
+        g.moveTo(a[0], a[1]);
+        g.lineTo(px, py);
+        g.stroke();
+        g.setLineDash([]);
+        dot(px, py, fr * .2, '#fef08a', '#ca8a04');
+        mini(px, py, sp1, k);
+        if (ft > .2) {
+            lbl(px, py - fr * .3, '정핵 n=2', 15 / SC);
+            lbl(o[0] + fr * .45, o[1] + fr * .1, '난세포 n=2', 15 / SC);
+        }
+    }
+    else {
+        const f = (ft - .85) / .15;
+        dot(o[0], o[1], fr * .3, '#fef3c7', '#f59e0b');
+        mini(o[0], o[1], ch, k * .9);
+        g.globalAlpha = 1 - f;
+        g.strokeStyle = '#fff';
+        g.lineWidth = 2 * k;
+        g.beginPath();
+        g.arc(o[0], o[1], fr * (.3 + f * .6), 0, 7);
+        g.stroke();
+        lbl(o[0], o[1] + fr * .45, '수정란 2n=4', 16 / SC);
+    }
+    g.restore();
+    g.globalAlpha = 1;
+    g.fillStyle = '#ffe37a';
+    g.font = '700 18px sans-serif';
+    g.textAlign = 'center';
+    g.fillText(ft < .2 ? '꽃 전체로 줌아웃…' : ft < .7 ? '꽃가루(정핵, n=2)가 암술로 이동해요 – 자가수분' : ft < .85 ? '정핵(n) + 난세포(n) 융합!' : '🎉 수정 완료! n + n → 2n=4 (씨방 속 자손 세포)', W / 2, H * .08);
+    if (ft >= 1 && !outro.d) {
+        outro.d = 1;
+        snd(700, .4, 'sine', .2, 250);
+        setTimeout(() => snd(900, .3, 'sine', .15, 400), 200);
+        $('b3').style.display = 'inline-block';
+    }
+}
+// input
+let sc = null;
+function pts(c) { const D = m2 ? ry * .5 : rx * .5; return sep > 0 ? (m2 ? [[c.x, c.y - sep * D], [c.x, c.y + sep * D]] : mode == 'mit' ? [[c.x - sep * D, c.y - 4], [c.x + sep * D, c.y + 4]] : [[c.x + c.side * sep * D, c.y]]) : [[c.x, c.y]]; }
+function swirl(x, y) {
+    let c = null, p = null;
+    ch.forEach(k => pts(k).forEach(q => { if (!c && Math.abs(x - q[0]) < EX(k) / 2 + 25 && Math.abs(y - q[1]) < 45) {
+        c = k;
+        p = q;
+    } }));
+    if (!c || c != sc) {
+        sc = c;
+        la = null;
+        if (!c)
+            return;
+    }
+    const a = Math.atan2(y - p[1], x - p[0]);
+    if (la != null && Math.hypot(x - p[0], y - p[1]) > 10) {
+        let d = a - la;
+        if (d > Math.PI)
+            d -= 6.283;
+        if (d < -Math.PI)
+            d += 6.283;
+        const q = Math.abs(d) / (3 * Math.PI);
+        c.cd = Math.max(0, Math.min(1, c.cd + (step == 2 ? q : -q)));
+        cond = ch.reduce((u, k) => u + k.cd, 0) / 4;
+        if (pt - tk > .09) {
+            tk = pt;
+            snd(200 + c.cd * 500, .09, 'sine', .05);
+        }
+        if (step == 2 && ch.every(k => k.cd >= 1)) {
+            setStep(nx());
+            ok();
+        }
+        else if ((step == 7 || step == 21) && ch.every(k => k.cd <= 0))
+            finish();
+    }
+    la = a;
+}
+function finish() { pop(phN(step) + ' 완료!', '🎉 세포분열 전체 완료', NE[phN(step)]); step = 99; gauge(); ok(); tip(mode == 'mit' ? '체세포분열 완료! 2n=4 → 2n=4 (딸세포 2개)' : '생식세포분열 완료! 2n=4 → n=2 (딸세포 4개)', 6000); $('b2').textContent = mode == 'mit' ? '🌱 뿌리가 자라는 모습 보기' : '🌼 자가수분(수정) 보기'; $('b2').style.display = 'inline-block'; }
+cv.addEventListener('pointerdown', e => {
+    cv.setPointerCapture(e.pointerId);
+    const x = e.clientX, y = e.clientY;
+    lp = [x, y];
+    la = null;
+    if (ph == 'intro') {
+        const { R, wx, wy } = peaGeom();
+        if (Math.hypot(x - wx, y - wy) < R * .22) {
+            ph = 'zin';
+            zt = 0;
+            snd(180, .9, 'sine', .15, 500);
+        }
+        return;
+    }
+    if (ph != 'play')
+        return;
+    if ([0, 4, 13, 15, 22].includes(step)) {
+        for (let i = 3; i >= 0; i--) {
+            const c = ch[i];
+            if (hit(c, x, y)) {
+                dr = { c, ox: c.x - x, oy: c.y - y };
+                c.ok = 0;
+                break;
+            }
+        }
+    }
+    else if (step == 3 || step == 14 || step == 18) {
+        ch.forEach(c => { if (!c.att && (step == 18 ? Math.hypot(x - c.x, y - c.y) < 34 : mode == 'mei' ? Math.hypot(x - c.x, y - c.y) < LC(c) * .6 + 10 && (x < (c.x + ch[c.i ^ 1].x) / 2) == (c.side < 0) : Math.hypot(x - c.x, y - c.y) < 32)) {
+            c.att = 1;
+            snd(500, .2, 'triangle', .1, 800);
+            if (ch.every(k => k.att)) {
+                ok();
+                setTimeout(() => setStep(nx()), 900);
+            }
+        } });
+    }
+});
+cv.addEventListener('pointermove', e => {
+    if (!lp)
+        return;
+    const x = e.clientX, y = e.clientY, dx = x - lp[0], dy = y - lp[1];
+    lp = [x, y];
+    if (ph != 'play')
+        return;
+    if (dr) {
+        const c = dr.c, ox = c.x, oy = c.y;
+        c.x = x + dr.ox;
+        c.y = y + dr.oy;
+        clamp(c);
+        c.tx = c.x;
+        c.ty = c.y;
+        if (step == 15) {
+            const q = ch[c.i ^ 1];
+            q.x += c.x - ox;
+            q.y += c.y - oy;
+            clamp(q);
+            q.tx = q.x;
+            q.ty = q.y;
+        }
+    }
+    else if (step == 2 || step == 7 || step == 21)
+        swirl(x, y);
+    else if (step == 5 || step == 16 || step == 19) {
+        sep = Math.min(1, sep + (step == 19 ? Math.abs(dy) / (ry * .9) : Math.abs(dx) / (rx * .9)));
+        if (pt - tk > .08) {
+            tk = pt;
+            snd(500 - sep * 300, .15, 'sawtooth', .04, 150);
+        }
+        if (sep >= 1) {
+            setStep(nx());
+            ok();
+        }
+    }
+    else if (step == 6 || step == 17 || step == 20) {
+        const v = (Math.abs(dx) + Math.abs(dy)) / (ry * 2.4);
+        if (step == 20)
+            cy2 = Math.min(1, cy2 + v);
+        else
+            cyt = Math.min(1, cyt + v);
+        if (pt - tk > .1) {
+            tk = pt;
+            snd(250 + (cyt + cy2) * 200, .1, 'triangle', .05);
+        }
+        if ((step == 20 ? cy2 : cyt) >= 1) {
+            setStep(nx());
+            ok();
+        }
+    }
+});
+function up() {
+    if (dr) {
+        const c = dr.c, i = c.i;
+        dr = null;
+        if (step == 0) {
+            const zy = cy + ZY[c.z] * ry;
+            if (c.z ? c.y > cy : c.y < cy) {
+                c.tx = cx;
+                c.ty = zy + ((i % 2) ? 1 : -1) * .12 * ry;
+                c.ok = 1;
+                snd(440, .12, 'triangle', .1);
+                if (ch.every(k => k.ok)) {
+                    ok();
+                    setTimeout(() => setStep(1), 500);
+                }
+            }
+            else
+                tip(c.z ? '이 염색사는 짧은 염색체(B/b) 구역이에요' : '이 염색사는 긴 염색체(A/a) 구역이에요');
+        }
+        else if (step == 13) {
+            const p = ch[i ^ 1];
+            if (Math.abs(c.x - p.x) < .4 * rx && Math.abs(c.y - p.y) < .3 * ry) {
+                const o = { x: (c.x + p.x) / 2, y: (c.y + p.y) / 2, len: c.len * 1.6 };
+                clamp(o);
+                [c, p].forEach(q => { q.tx = o.x + q.side * 8; q.ty = o.y; q.ok = q.pr = 1; });
+                snd(520, .2, 'triangle', .12, 780);
+                if (ch.every(k => k.ok)) {
+                    ok();
+                    setTimeout(() => setStep(nx()), 800);
+                }
+            }
+            else
+                tip('짝이 되는 상동 염색체(같은 길이)에 가까이 놓으세요');
+        }
+        else if (step == 15) {
+            const p = ch[i ^ 1];
+            if (Math.abs((c.x + p.x) / 2 - cx) < .22 * rx) {
+                [c, p].forEach(q => { q.tx = cx + q.side * 8; q.ty = cy + (q.z ? .3 : -.3) * ry; q.ok = 1; });
+                snd(440, .12, 'triangle', .1);
+                if (ch.every(k => k.ok)) {
+                    ok();
+                    setTimeout(() => setStep(nx()), 500);
+                }
+            }
+            else
+                tip('2가염색체를 적도면(가운데)으로!');
+        }
+        else if (step == 22) {
+            if (Math.abs(c.y - cy) < .14 * ry) {
+                c.ty = cy;
+                c.tx = cx + c.side * rx * .5 + (c.z ? .2 : -.1) * rx;
+                c.ok = 1;
+                snd(440, .12, 'triangle', .1);
+                if (ch.every(k => k.ok)) {
+                    ok();
+                    setTimeout(() => setStep(nx()), 500);
+                }
+            }
+            else
+                tip('가로 중앙선(적도면)에 맞추세요');
+        }
+        else if (step == 4) {
+            if (Math.abs(c.x - cx) < .18 * rx) {
+                c.tx = cx;
+                c.ty = mpos()[i];
+                c.ok = 1;
+                snd(440, .12, 'triangle', .1);
+                if (ch.every(k => k.ok)) {
+                    ok();
+                    setTimeout(() => setStep(5), 500);
+                }
+            }
+            else
+                tip('세포 가운데 적도면 쪽으로 더 가까이!');
+        }
+    }
+    lp = null;
+    la = null;
+}
+cv.addEventListener('pointerup', up);
+cv.addEventListener('pointercancel', up);
+(function ease() { requestAnimationFrame(ease); ch.forEach(c => { if (dr && dr.c == c)
+    return; c.x += (c.tx - c.x) * .18; c.y += (c.ty - c.y) * .18; }); })();
+window.__ok = 1;
+</script>
+</body>
+</html>
