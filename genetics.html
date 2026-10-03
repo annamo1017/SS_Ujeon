@@ -1,0 +1,547 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>완두콩 유전 탐구 – 우열·분리·독립의 법칙</title>
+<style>
+:root{--bg:#0e1116;--card:#1a1f29;--tx:#e8ecf2;--ac:#f5c518;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+body{height:100%;margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;overflow:hidden;touch-action:none;font-size:14px}
+canvas{position:fixed;inset:0;width:100%;height:100%;transition:filter .15s}
+#card{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;right:8px;max-width:620px;margin:auto;background:rgba(26,31,41,.93);border:1px solid #2b3342;border-radius:14px;padding:10px 14px;display:none;line-height:1.45}
+#card b{color:var(--ac)}#pb{display:flex;gap:4px;margin-top:8px}.seg{flex:1;position:relative;height:24px;border-radius:7px;background:#232a37;overflow:hidden;border:1px solid #2f3848}.seg.go{cursor:pointer;border-color:#5b6b8c}.seg.cur{border-color:var(--ac)}.seg .f{position:absolute;inset:0 auto 0 0;width:0;background:linear-gradient(90deg,#b88a00,#f5c518);transition:width .2s}.seg em{position:relative;display:block;text-align:center;font-style:normal;font-size:11px;line-height:24px;font-weight:700;color:#fff;text-shadow:0 1px 3px #000;white-space:nowrap}.gap{width:2px;background:#5b6b8c;border-radius:1px}
+#pop{position:fixed;left:50%;top:44%;transform:translate(-50%,-50%) scale(.6);opacity:0;pointer-events:none;background:rgba(20,24,32,.94);border:2px solid var(--ac);border-radius:18px;padding:18px 28px;font-size:clamp(22px,6vw,34px);font-weight:800;color:#ffe37a;text-align:center;white-space:nowrap;transition:transform .3s cubic-bezier(.3,1.6,.5,1),opacity .3s;box-shadow:0 8px 40px rgba(245,197,24,.3)}#pop.on{opacity:1;transform:translate(-50%,-50%) scale(1)}#pop .ne{font-size:clamp(18px,4.8vw,24px);color:#8ecae6;margin-top:8px}#pop{white-space:normal;max-width:92vw}#pop small{display:block;font-size:14px;color:#cbd5e1;font-weight:500;margin-top:4px}
+#bar{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 66px);left:0;right:0;text-align:center}
+#tip{font-size:18px;position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 72px);left:0;right:0;text-align:center;font-weight:600;color:#ffe37a;text-shadow:0 1px 6px #000;padding:0 12px}
+button{font:inherit;background:var(--ac);color:#111;border:0;border-radius:24px;padding:12px 26px;font-weight:700;margin:4px;display:none}
+#modes{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,12,16,.55);text-align:center;padding:16px}
+#modes button{display:block;width:min(320px,90vw);margin:6px}
+h2{margin:0 0 8px}
+#dom{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;overflow-y:auto;touch-action:pan-y;background:rgba(10,12,16,.95);padding:calc(env(safe-area-inset-top,0px) + 60px) 12px calc(env(safe-area-inset-bottom,0px) + 24px);text-align:center}
+#dom h2{font-size:clamp(20px,5.5vw,26px)}#dom .sub{font-size:16px;margin:0 0 14px}
+.opts{width:100%;max-width:520px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap}.opts button{margin:0;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;gap:6px;width:clamp(96px,30vw,160px);background:#1a1f29;color:#e8ecf2;border:2px solid #2f3848;border-radius:16px;padding:10px 6px;font-size:14px;line-height:1.3}.opts button svg{width:70%}.opts button.ok{border-color:#22c55e;background:#14361f}.opts button.no{border-color:#ef4444;background:#3b1414}
+.verdict{font-size:22px;font-weight:800;margin:16px 0 8px;color:#ffe37a}.law{max-width:560px;background:#1a1f29;border:2px solid var(--ac);border-radius:18px;padding:16px;text-align:left;font-size:17px;line-height:1.6}.law .lt{font-size:26px;font-weight:900;color:#ffe37a;text-align:center;margin-bottom:6px}
+.dr{display:flex;gap:10px;margin:10px 0}.dr>div{flex:1;background:#0e1116;border-radius:12px;padding:10px;text-align:center;font-size:17px}.dr b{font-size:28px}.dr em{font-style:normal;font-size:24px;font-weight:900;color:#ffe37a}.dr small{display:block;font-size:12px;color:#94a3b8}
+#dgo{display:inline-block;margin-top:14px}
+#pop{z-index:60}
+#tbar{position:fixed;top:0;left:0;right:0;padding-top:env(safe-area-inset-top,0px);height:44px;display:none;align-items:center;gap:6px;padding-left:6px;padding-right:6px;background:rgba(14,17,22,.94);border-bottom:1px solid #2b3342;z-index:30;box-sizing:content-box}
+#chips{flex:1;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;touch-action:pan-x}#chips::-webkit-scrollbar{display:none}
+.chip{flex:none;display:inline-block!important;margin:0!important;font-size:13px;padding:6px 10px!important;border-radius:14px!important;background:#1a1f29!important;color:#cbd5e1!important;border:1px solid #2f3848!important;font-weight:600!important}
+.chip.past{color:#ffe37a!important;border-color:#8a6d00!important}.chip.on{background:var(--ac)!important;color:#111!important;border-color:var(--ac)!important}
+#ctl{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 10px);display:none;gap:8px;align-items:center;background:rgba(20,24,32,.92);border:1px solid #2f3848;border-radius:30px;padding:6px 10px;z-index:30;box-shadow:0 4px 18px rgba(0,0,0,.5)}#ctl button{display:inline-block;margin:0;width:54px;height:42px;padding:0;font-size:22px;background:#2b3342;color:#fff;border-radius:21px;line-height:1}#ctl button.on{background:var(--ac);color:#111}#cSpd{font-size:15px;font-weight:700;color:#ffe37a;min-width:52px;text-align:center}#pop.bp{padding:26px 22px;border-width:3px;white-space:normal;width:min(88vw,460px);box-sizing:border-box}#pop.bp .t{font-size:clamp(30px,9vw,46px)}
+#modes button small{font-size:13px;opacity:.8}
+#case{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;overflow-y:auto;touch-action:pan-y;background:#0e1116;padding:calc(env(safe-area-inset-top,0px) + 50px) 10px calc(env(safe-area-inset-bottom,0px) + 30px);text-align:center;z-index:20;box-sizing:border-box}
+#ctop{position:relative;width:100%;max-width:560px;background:#141922;border:1px solid #2b3342;border-radius:16px;padding:8px 6px 10px;box-sizing:border-box}
+#ctop h2{font-size:17px;margin:0 0 2px}
+#stage{position:relative;height:96px;margin:2px auto;width:100%;max-width:340px}
+.gmt{position:absolute;top:10px;width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:19px;background:#fef9c3;border:4px solid #eab308;transition:all .9s cubic-bezier(.5,0,.3,1)}
+.gmt::after{content:attr(data-l);position:absolute;top:62px;font-size:12px;color:#cbd5e1;font-weight:600;white-space:nowrap}
+#spol{left:2%}#segg{right:2%;background:#fce7f3;border-color:#ec4899}
+#stage.go #spol{left:calc(50% - 50px)}#stage.go #segg{right:calc(50% - 50px)}#stage.fz .gmt{opacity:0;transform:scale(.5)}
+#szyg{position:absolute;left:50%;top:6px;width:80px;height:80px;margin-left:-40px;border-radius:50%;background:#fef3c7;border:4px solid #f59e0b;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:21px;opacity:0;transform:scale(.3);transition:all .45s cubic-bezier(.3,1.6,.5,1);color:#111}
+#stage.fz #szyg{opacity:1;transform:scale(1)}
+.gmt .R,#szyg .R{color:#dc2626}.gmt .r,#szyg .r{color:#2563eb}.gmt .Y,#szyg .Y{color:#b45309}.gmt .y,#szyg .y{color:#15803d}
+#qtxt{font-size:16px;min-height:44px;padding:0 6px;line-height:1.45;display:block}
+#inp,#phs{min-height:104px;display:flex;flex-direction:column;align-items:center;justify-content:center}#phs{flex-direction:row;flex-wrap:wrap}
+#gtbox{display:inline-flex;min-width:130px;height:42px;align-items:center;justify-content:center;border:2px dashed #5b6b8c;border-radius:10px;font-size:26px;font-weight:900;letter-spacing:2px;margin:4px 0;background:#1a1f29}
+#keys button,#phs button,#auto{display:inline-block;margin:3px}
+#keys button{min-width:50px;font-size:22px;padding:8px 12px;background:#e8ecf2}#keys .kb{background:#475569;color:#fff}
+#phs button{display:inline-flex;flex-direction:column;align-items:center;width:calc(25% - 6px);max-width:112px;margin:3px!important;padding:6px 2px;box-sizing:border-box;background:#1a1f29;color:#e8ecf2;border:2px solid #2f3848;border-radius:12px;font-size:14px;font-weight:700;line-height:1.25}#phs button svg{width:42px}
+#phs button.no{border-color:#ef4444;animation:sh .3s}@keyframes sh{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+#auto{display:none;background:#2b3342;color:#e8ecf2;padding:8px 16px;font-size:14px;margin-top:6px!important}
+.shake{animation:sh .3s}
+#cgrid{display:grid;gap:4px;margin:12px auto 10px}#cgrid>div{aspect-ratio:1;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:clamp(12px,3.4vw,17px)}
+.cc{background:#232a37;border:2px dashed #3b4658;color:#5b6b8c}.cc.cur{border:3px solid var(--ac);color:#ffe37a;animation:pl 1s infinite}@keyframes pl{50%{box-shadow:0 0 14px rgba(245,197,24,.7)}}
+.cc.done{background:#1f2937;border:2px solid #f5c518;animation:pp .35s}.cc.done svg{width:48%}
+#bins{display:flex;gap:6px;width:100%;max-width:560px;justify-content:center;flex-wrap:wrap}.bin{flex:1;min-width:70px;background:#1a1f29;border:1px solid #2f3848;border-radius:12px;padding:6px 4px}.bin .bn{font-size:13px;color:#e2e8f0;font-weight:600}.bin .bc{font-size:22px;font-weight:900;color:#ffe37a}.bin .bi{display:flex;flex-wrap:wrap;justify-content:center;gap:2px;min-height:18px}.bin .bi svg{width:16px}.bin.hit{border-color:var(--ac)}
+#cres{max-width:560px;width:100%;line-height:1.65;font-size:16px}#cres .box{background:#1a1f29;border:1px solid #2f3848;border-radius:12px;padding:12px;margin:8px 0}#cres .big{font-size:22px;font-weight:800;color:#ffe37a}#cres button{display:inline-block;margin:4px}
+@media (min-width:900px){#case[style*="flex"]{display:grid!important;grid-template-columns:minmax(380px,460px) minmax(440px,580px);grid-template-areas:"top grid" "top bins" "res res";justify-content:center;align-content:start;column-gap:28px;row-gap:8px}
+#ctop{grid-area:top;align-self:start}#cgrid{grid-area:grid;margin:0}#bins{grid-area:bins;max-width:none}#cres{grid-area:res;justify-self:center;max-width:720px}#qtxt{font-size:18px}#stage{height:110px}}
+#pun{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;overflow-y:auto;touch-action:pan-y;background:rgba(10,12,16,.96);padding:calc(env(safe-area-inset-top,0px) + 16px) 12px calc(env(safe-area-inset-bottom,0px) + 24px);text-align:center}
+#pun .sub{margin:0 0 12px;font-size:15px}.R{color:#f87171}.r{color:#60a5fa}.Y{color:#fbbf24}.y{color:#4ade80}.gm .R{color:#dc2626}.gm .r{color:#2563eb}.gm .Y{color:#b45309}.gm .y{color:#15803d}
+.opts.four{display:grid;grid-template-columns:1fr 1fr;max-width:340px;justify-items:center}.opts.four button{width:100%}
+.ph4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0}.ph4>div{background:#0e1116;border-radius:10px;padding:6px 2px;font-size:12px}.ph4 svg{width:60%}.ph4 b{display:block;font-size:22px;color:#ffe37a}
+#grid{display:grid;grid-template-columns:repeat(5,clamp(58px,17.4vw,100px));gap:4px}#fillall{display:inline-block;background:#2b3342;color:#e8ecf2;margin-top:10px;padding:8px 18px}
+#grid>div{aspect-ratio:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:clamp(12px,3.4vw,17px)}
+.hd{background:#1a1f29;border:1px solid #2f3848;font-size:13px!important}.hd span{font-size:12px;font-weight:600;color:#cbd5e1}
+.gm{width:62%;font-size:clamp(12px,3.5vw,17px)!important;aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:clamp(18px,5vw,24px);background:#fff8dc;border:3px solid}
+.cellq{background:#232a37;border:2px dashed #5b6b8c;cursor:pointer;color:#8fa0c0}.cellq:hover{border-color:var(--ac)}
+.celld{background:#1f2937;border:2px solid var(--ac);animation:pp .35s}.celld svg{width:48%}.celld small{font-size:11px;color:#cbd5e1;font-weight:600}
+@keyframes pp{0%{transform:scale(.6)}70%{transform:scale(1.08)}100%{transform:scale(1)}}
+#res{max-width:520px;margin-top:14px;line-height:1.6;font-size:15px}#res .box{background:#1a1f29;border:1px solid #2f3848;border-radius:12px;padding:12px;margin:8px 0}
+#res .big{font-size:20px;font-weight:800;color:#ffe37a}
+#res button,#again{display:inline-block}#again{display:none;margin-top:10px}
+.qz button{background:#2b3342;color:#e8ecf2;margin:4px}.qz button.ok{background:#16a34a;color:#fff}.qz button.no{background:#7f1d1d;color:#fff}
+</style></head><body>
+<canvas id="c"></canvas>
+<div id="card"></div><div id="tip"></div><div id="pop"></div>
+<div id="bar"><button id="b1">🧬 복제하기</button><button id="b4">🧬 복제하기</button><button id="b5">🚫 복제하지 않기</button><button id="b6">✨ 감수분열로 생식세포 만들기</button><button id="b7">⏭ 건너뛰기</button><button id="b8">🔄 짧은 염색체 쌍(Y/y) 방향 바꾸기</button><button id="b9">① R–Y 같은 쪽으로 배열</button><button id="b10">② R–y 같은 쪽으로 배열</button><button id="b11">🔄 다른 배열로도 해 보기</button><button id="b2">🧮 퍼넷 사각형으로 자가수분</button><button id="b3">↺ 다시 하기</button></div>
+<div id="modes"><h2>🫛 완두콩 유전 탐구</h2><p style="margin:0 0 14px;opacity:.85;max-width:440px">순종 완두를 교배해 잡종 1대(F₁)를 만들고, F₁의 감수분열과 자가수분으로 잡종 2대(F₂)가 어떻게 나타나는지 직접 알아봐요.</p><button id="m1">① 우열의 법칙 · 분리의 법칙<br><small style="font-weight:500">단성잡종 · 둥근(R) / 주름진(r)</small></button><button id="m2">② 독립의 법칙<br><small style="font-weight:500">양성잡종 · 둥근(R)/주름진(r) + 황색(Y)/녹색(y)</small></button></div>
+<div id="tbar"><button id="thome" class="chip" style="background:#3a2f0a!important;color:#ffe37a!important" title="처음 화면">🏠 처음</button><div id="chips"></div></div><div id="ctl"><button id="cRew" title="뒤로 감기">⏪</button><button id="cPlay" title="멈춤/재생">❚❚</button><button id="cFf" title="빨리 감기">⏩</button><span id="cSpd">×1</span></div><div id="dom"></div><div id="case"><div id="ctop"><h2 id="ctitle"></h2><div id="stage"><div class="gmt" id="spol" data-l="꽃가루(정핵)"></div><div class="gmt" id="segg" data-l="난세포"></div><div id="szyg">?</div></div><div id="qtxt"></div><div id="inp"><div id="gtbox"></div><div id="keys"></div></div><div id="phs"></div><button id="auto">⚡ 나머지는 자동으로 채우기</button></div><div id="cgrid"></div><div id="bins"></div><div id="cres"></div></div><div id="pun"><h2>F₁(RrYy) 자가수분 · 퍼넷 사각형</h2><p class="sub">생식세포 4종류가 만나요. 빈 칸을 눌러 수정시키세요!</p><div id="grid"></div><button id="fillall">⚡ 나머지 한 번에 채우기</button><div id="res"></div><button id="again">↺ 처음부터 다시</button></div>
+<script>
+const $=id=>document.getElementById(id),cv=$('c'),g=cv.getContext('2d');
+let W,H,cx,cy,rx,ry,L;
+function rs(){const d=devicePixelRatio||1;W=innerWidth;H=innerHeight;cv.width=W*d;cv.height=H*d;g.setTransform(d,0,0,d,0,0);ry=Math.min(H*.28,W*.34);rx=Math.min(ry*1.4,W*.47);cx=W/2;cy=H*.54;L=rx*.68}
+addEventListener('resize',rs);rs();
+let ph='choose',fz=0,sp=0,ft=0,m2=false,cy2=0,rt=false,mode='mit',step=0,cond=0,prog=0,sep=0,cyt=0,zt=0,ot=0,ch=[],dr=null,lp=null,la=null,conf=[],lastT=0,tk=0,pt=0;
+const T=[['간기 ① 염색사 분류','F₁(RrYy) 꽃밥 속 세포예요. <b class="R">빨강 계열</b>은 둥근·황색 완두(RRYY), <b class="r">파랑 계열</b>은 주름진·녹색 완두(rryy)에게서 받은 염색체예요. 4줄을 끌어 <b>긴 염색체 구역(R/r)</b>과 <b>짧은 염색체 구역(Y/y)</b>에 넣으세요.'],
+['간기 ② DNA 복제','<b>복제하기</b> 버튼을 눌러 염색사와 유전자를 복제하세요. (R-R, r-r, Y-Y, y-y)'],
+['전기 · 염색체 응축','염색사 <b>하나하나</b> 위에서 손가락/마우스로 <b>동글동글 돌려</b> 각각 X자 염색체로 응축시키세요.'],
+['전기 · 방추사 부착','전기 후반, 핵막이 사라지고 양끝 중심체에서 방추사가 뻗어 나와요. 각 염색체의 <b>동원체(●)</b>를 눌러 연결하세요.'],
+['중기 · 적도면 정렬','방추사가 매달린 염색체를 끌어 세포 <b>가운데(적도면)</b>에 정렬하세요.'],
+['후기','방추사를 당기듯 화면을 <b>좌우로 문질러</b> 보세요. '],
+['말기 ① 세포질 분열','세포 가운데의 잘록한 부분을 <b>위아래로 쓸어</b> 세포막을 오목하게 만들어 딸세포 2개로 나누세요.'],
+['말기 ② 핵막 형성','각 염색체 위에서 <b>동글동글 돌려</b> 하나씩 염색사로 풀면 핵막이 완성됩니다.']];
+const MS=[0,1,2,13,14,15,16,17,23,18,22,19,20,21];function nx(){return mode=='mit'?step+1:MS[MS.indexOf(step)+1]}
+T[13]=['전기 I · 상동염색체 접합','같은 길이의 <b>상동 염색체끼리</b> 끌어다 붙이세요. 동원체(●)를 사이에 두고 좌우로 붙은 <b>2가염색체(>●<)</b>가 됩니다.'];
+T[14]=['전기 I · 방추사 부착','전기 후반, 방추사가 뻗어 나와요. 각 상동 염색체의 <b>동원체(●)</b>를 눌러 연결하세요. 상동 염색체는 <b>서로 반대쪽 극</b>에 연결됩니다.'];
+T[15]=['중기 I · 적도면 정렬','<b>2가염색체(상동 염색체 쌍)</b>를 끌어 가운데 <b>점선(적도면)</b>에 배열하세요. 짝이 함께 움직여요.<br><b>🔄 버튼</b>으로 짧은 염색체 쌍(Y/y)의 방향을 바꿀 수 있어요. 어느 방향이든 가능해요!'];
+T[16]=['후기 I · 상동염색체 분리','좌우로 문질러 <b>상동 염색체를 분리</b>해 양극으로 보내세요. (염색분체는 붙어 있어요)<br>👉 <b>R과 r, Y와 y가 각각 따로 갈라져요!</b>'];
+T[17]=['말기 I · 세포질 분열','세포막을 쓸어 오목하게 만들어 <b>딸세포 2개</b>로 나누세요. 이후 DNA 복제 없이 감수 2분열이 이어집니다.'];
+T[23]=['전기 II · 복제 여부 확인','감수 2분열을 시작하기 전, DNA를 <b>복제해야 할까요?</b> 아래 버튼 중 하나를 골라 보세요.'];
+T[18]=['전기 II · 방추사 부착','DNA 복제 없이 감수 2분열 시작! 두 딸세포에 방추사가 <b>위아래 극</b>에서 생겼어요. 가로로 누운 X자 염색체의 <b>동원체(●)</b>를 눌러 연결하세요.'];
+T[22]=['중기 II · 적도면 정렬','방추사가 붙은 염색체를 끌어 각 딸세포의 <b>가로 중앙선(적도면)</b>에 정렬하세요.'];
+T[19]=['후기 II · 염색분체 분리','화면을 <b>위아래로 문질러</b> 자매 염색분체를 분리해 양극으로 당기세요.'];
+T[20]=['말기 II · 세포질 분열','다시 세포막을 쓸어 각 세포를 나눠 <b>딸세포 4개</b>를 만드세요.'];
+T[21]=['말기 II · 핵막 형성','각 염색체 위에서 <b>동글동글 돌려</b> 염색사로 풀면 핵막이 만들어집니다.'];
+const ZY=[-.42,.42],SL=[-.42,-.14,.14,.42];
+let ac;function snd(f,d=.15,ty='sine',v=.1,f2){try{ac=ac||new(window.AudioContext||webkitAudioContext)();const t=ac.currentTime,o=ac.createOscillator(),n=ac.createGain();o.type=ty;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);n.gain.setValueAtTime(v,t);n.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(n).connect(ac.destination);o.start();o.stop(t+d)}catch(e){}}
+function tip(s,ms=2200){$('tip').textContent=s;clearTimeout(tip.t);tip.t=setTimeout(()=>$('tip').textContent='',ms)}
+function init(){ch=[['#ef4444','R',1,0],['#3b82f6','r',1,0],['#fca5a5','Y',.5,1],['#93c5fd','y',.5,1]].map((o,i)=>{const c={c:o[0],n:o[1],len:o[2],z:o[3],i,x:cx+(Math.random()-.5)*rx*.9,y:cy+(Math.random()-.5)*ry*.9,rep:0,att:0,side:0,ok:0,cd:0};clamp(c);c.tx=c.x;c.ty=c.y;return c});cond=prog=sep=cyt=cy2=0;m2=false}
+const LS=c=>c.len*L*(m2?.55:1),LC=c=>c.len*L*.5,EX=c=>((step>=3&&step<21)||step==22||step==23)&&step!=7&&step!=99?LC(c):LS(c);
+function mpos(){const gp=8,o=[2,0,1,3],hs=o.map(i=>LC(ch[i])),tot=hs.reduce((a,b)=>a+b,0)+gp*3;let y=cy-tot/2;const r=[];o.forEach((i,k)=>{r[i]=y+hs[k]/2;y+=hs[k]+gp});return r}
+function vtc(c){return !m2&&EX(c)==LC(c)}
+function hit(c,x,y){const h=Math.max(EX(c)/2,20)+14;return vtc(c)?Math.abs(x-c.x)<Math.max(34,h*.8)&&Math.abs(y-c.y)<h:Math.abs(x-c.x)<h&&Math.abs(y-c.y)<30}
+function clamp(c){if(m2){const a=rx*.5-EX(c)/2-8,b=ry-34,dc=cx+c.side*rx*.5;let dx=(c.x-dc)/a,dy=(c.y-cy)/b,d=Math.hypot(dx,dy);if(d>1){c.x=dc+dx/d*a;c.y=cy+dy/d*b}return}const a=rx-EX(c)/2-10,b=vtc(c)?ry-EX(c)/2-10:ry-16;let dx=(c.x-cx)/a,dy=(c.y-cy)/b,d=Math.hypot(dx,dy);if(d>1){c.x=cx+dx/d*a;c.y=cy+dy/d*b}}
+const PH={mit:[['간기',[0,1]],['전기',[2,3]],['중기',[4]],['후기',[5]],['말기',[6,7]]],
+mei:[['간기',[0,1]],['전기Ⅰ',[2,13,14]],['중기Ⅰ',[15]],['후기Ⅰ',[16]],['말기Ⅰ',[17]],0,['전기Ⅱ',[23,18]],['중기Ⅱ',[22]],['후기Ⅱ',[19]],['말기Ⅱ',[20,21]]]};
+let snaps={},segs=[];
+const NE={'전기':'🔹 핵막 소실 · 인 소실','전기Ⅰ':'🔹 핵막 소실 · 인 소실','말기':'🔸 핵막 재형성 · 인 재형성','말기Ⅱ':'🔸 핵막 재형성 · 인 재형성'};
+function pop(t,sub,ne){const e=$('pop');e.innerHTML=t+(ne?'<div class="ne">'+ne+'</div>':'')+(sub?'<small>'+sub+'</small>':'');e.classList.add('on');snd(523,.12,'triangle',.12);setTimeout(()=>snd(784,.25,'triangle',.12),110);clearTimeout(pop.t);pop.t=setTimeout(()=>e.classList.remove('on'),ne?2300:1500)}
+function phN(k){const q=PH[mode].find(q=>q&&q[1].includes(k));return q?q[0]:''}
+function ord(k){return mode=='mit'?k:MS.indexOf(k)}
+function stepFrac(){const n4=f=>ch.filter(f).length/4,av=ch.reduce((u,k)=>u+k.cd,0)/4;
+return({0:n4(c=>c.ok),2:av,13:n4(c=>c.ok),3:n4(c=>c.att),14:n4(c=>c.att),18:n4(c=>c.att),4:n4(c=>c.ok),22:n4(c=>c.ok),5:sep,16:sep,19:sep,6:cyt,17:cyt,20:cy2,7:1-av,21:1-av})[step]||0}
+function gauge(){if(ph!='play')return;const cur=ord(step);segs.forEach(o=>{const st=o.st,i0=ord(st[0]),i1=ord(st[st.length-1]);let f;
+if(step==99||cur>i1)f=1;else if(cur<i0)f=0;else f=(st.indexOf(step)+Math.min(1,stepFrac()))/st.length;o.f.style.width=(f*100)+'%';o.el.classList.toggle('cur',step!=99&&cur>=i0&&cur<=i1);o.el.classList.toggle('go',!!snaps[st[0]]&&(step==99||cur>=i0))})}
+function goBack(t){const sn=snaps[t];if(!sn)return;ch=JSON.parse(sn.ch);sep=sn.sep;cyt=sn.cyt;cy2=sn.cy2;cond=sn.cond;dr=null;step=sn.prev;$('b2').style.display='none';$('tip').textContent='';setStep(t,1);snd(330,.2,'sine',.1,220)}
+function setStep(n,quiet){if(!quiet&&ph=='play'&&step!=n&&T[step]&&n!=0)phN(step)==phN(n)?pop('✔ '+T[step][0].split(' · ').pop(),T[step][0]):pop(phN(step)+' 완료!',T[step][0],NE[phN(step)]);
+snaps[n]={ch:JSON.stringify(ch),sep,cyt,cy2,cond,prev:step};
+step=n;prog=0;la=null;m2=mode=='mei'&&[18,22,19,20,21].includes(n);if(n==2)ch.forEach(c=>c.cd=0);if(n==7||n==21){ch.forEach(c=>c.cd=1);cond=1}if(n==21)ch.forEach(c=>{c.tx=cx+c.side*rx*.5+(c.z?.2:-.1)*rx;c.ty=cy});if(n==7)ch.forEach(c=>c.ty=cy+(c.ty-cy)*.75);if([4,13,15,22].includes(n))ch.forEach(c=>c.ok=0);if(n==18)ch.forEach(c=>c.att=0);if(n==5)ch.forEach(c=>{c.tx=cx;c.x=cx});
+if(n==18){ch.forEach(c=>{c.x+=c.side*rx*.5;c.tx=cx+c.side*rx*.5+(c.z?1:-1)*rx*.15;c.ty=cy+(c.z?-.4:.3)*ry});sep=0;cyt=1;cy2=0}
+$('card').style.display='block';let d=T[n][1];if(n==5)d+=mode=='mit'?'자매 염색분체가 갈라져 V자로 양극으로 이동합니다.':'상동 염색체가 갈라져 양극으로 이동합니다(감수 1분열).';
+$('card').innerHTML='<b>'+T[n][0]+'</b> · '+(mode=='mit'?'체세포분열':'생식세포분열')+'<br>'+d+'<div id="pb">'+PH[mode].map(q=>q?'<div class="seg" data-s="'+q[1][0]+'"><span class="f"></span><em>'+q[0]+'</em></div>':'<div class="gap"></div>').join('')+'</div>';
+segs=[...$('card').querySelectorAll('.seg')].map((el,i)=>{const st=PH[mode].filter(Boolean)[i][1];el.onclick=()=>{if(el.classList.contains('go')&&st[0]!=step)goBack(st[0])};return{el,st,f:el.querySelector('.f')}});gauge();
+$('b1').style.display=n==1?'inline-block':'none';$('b8').style.display=(n==14||n==15)?'inline-block':'none';$('b4').style.display=$('b5').style.display=n==23?'inline-block':'none';$('b2').style.display='none';
+if(n==3||n==13)ch.forEach((c,i)=>{c.tx=cx+(i%2?1:-1)*rx*(.28+.08*i);c.ty=cy+SL[i]*ry;clamp({x:0,y:0,len:c.len})});
+if(n==5||n==13){ch[0].side=-1;ch[1].side=1;const r=Math.random()<.5?-1:1;ch[2].side=r;ch[3].side=-r}}
+$('b4').onclick=()=>{snd(160,.35,'sawtooth',.1,90);pop('✖ 복제하지 않아요!','감수 1분열과 2분열 사이에는 간기(DNA 복제)가 없어요.<br>각 염색체는 이미 염색분체 2개로 되어 있어요.')};
+$('b5').onclick=()=>{$('b4').style.display=$('b5').style.display='none';tip('정답! DNA 복제 없이 바로 감수 2분열을 시작해요.',3000);setStep(18)};
+$('b8').onclick=()=>{const a=ch[2],b=ch[3],m=(a.tx+b.tx)/2,ma=(a.x+b.x)/2;[a.side,b.side]=[b.side,a.side];[a,b].forEach(q=>{q.tx=m+q.side*8;q.x=ma+q.side*8});snd(520,.2,'triangle',.1,300);tip('짧은 염색체 쌍의 방향을 바꿨어요: '+(a.side==ch[0].side?'R과 Y가 같은 쪽':'R과 y가 같은 쪽'),2500)};
+function ok(){snd(660,.25,'sine',.12,990)}
+$('b1').onclick=()=>{ch.forEach(c=>c.rep=1);snd(300,.5,'triangle',.15,700);$('b1').style.display='none';setTimeout(()=>setStep(2),1000)};
+$('b2').onclick=()=>{$('b2').style.display='none';if(ph=='link'){if($('cres').innerHTML)$('case').style.display='flex';else openCase();return}if(ph=='play'){ph='arr';ar=0;$('card').style.display='none';$('tip').textContent='';return}if(ph=='arr'){ph='flower';fl=0;return}if(ph=='flower'){if(cm<0){cm=0;cmL=0;flower.e=0;return}openCase();return}ph='flower';fl=0;$('card').style.display='none';$('tip').textContent=''};
+$('b3').onclick=()=>{restart()};function restart(){arrScene.d=0;$('tbar').style.display='none';f1s=0;['b9','b10','b11'].forEach(b=>$(b).style.display='none');$('case').style.display='none';fm=0;fmh=0;cross.q=0;$('dom').style.display='none';flower.d=0;flower.e=0;cm=-1;$('pun').style.display='none';['b2','b3','b6','b7'].forEach(b=>$(b).style.display='none');$('card').style.display='none';ph='choose';zt=0;fz=0;ft=0;$('b3').style.display='none';conf=[];cv.style.filter='';$('modes').style.display='flex'};
+$('thome').onclick=()=>{setSpd(1);restart()};
+function heal0(){$('tip').textContent=''}
+let DI=false;const F1=()=>DI?'RrYy':'Rr';let fm=0,fmh=0;
+let spd=1;
+const CH=[['부모 세대',0],['부모 성장',1],['부모 감수분열',2],['타가수분',3],['잡종 1대',4],['F₁ 성장',5],['F₁ 감수분열',6],['꽃·생식세포',7],['수정 경우의 수',8],['직접 해보기',9],['완전 연관',10]];
+function curStage(){if($('case').style.display=='flex')return 9;return{link:10,parents:0,pgrow:1,pzoom:2,pmeio:2,pzout:2,cross:xt<.66?3:4,seed:5,plant:5,sprout:5,fzoom:5,f1m:6,flower:cm<0?7:8}[ph]??-1}
+let lastCS=-2;
+function drawBar(){const on=ph!='choose';$('tbar').style.display=on?'flex':'none';$('ctl').style.display=on&&$('case').style.display!='flex'&&$('dom').style.display!='flex'&&!['parents','seed'].includes(ph)?'flex':'none';if(!on)return;const c=curStage();if(c!=lastCS){lastCS=c;$('chips').innerHTML=CH.filter(q=>DI||q[1]!=10).map(q=>'<button class="chip'+(q[1]==c?' on':q[1]<c?' past':'')+'" data-k="'+q[1]+'">'+q[0]+'</button>').join('');$('chips').querySelectorAll('.chip').forEach(b=>b.onclick=()=>jump(+b.dataset.k));const a=$('chips').querySelector('.on');if(a)a.scrollIntoView({inline:'center',block:'nearest'})}}
+function setSpd(v){spd=v;$('cPlay').textContent=spd==0?'▶':'❚❚';$('cRew').classList.toggle('on',spd<0);$('cFf').classList.toggle('on',spd>1);$('cPlay').classList.toggle('on',spd==0);$('cSpd').textContent=spd==0?'멈춤':spd<0?'◀×'+(-spd):'×'+spd}
+$('cRew').onclick=()=>setSpd(spd==-2?-4:-2);$('cPlay').onclick=()=>setSpd(spd==0?1:0);$('cFf').onclick=()=>setSpd(spd==2?4:spd==4?1:2);
+function jump(k){$('dom').style.display='none';$('case').style.display='none';if(cross.q==1)cross.q=0;['b2','b6','b7','b9','b10','b11'].forEach(b=>$(b).style.display='none');cv.style.filter='';f1s=0;flower.d=0;flower.e=0;cm=-1;setSpd(1);lastCS=-2;
+if(k==0){ph='parents';$('b6').style.display='inline-block'}else if(k==1){ph='pgrow';gt=0}else if(k==2){ph='pmeio';pm=0}else if(k==3){ph='cross';xt=0}else if(k==4){ph='cross';xt=.8}else if(k==5){ph='seed'}else if(k==6){ph='f1m';fm=0;fmh=0}else if(k==7){ph='flower';fl=0}else if(k==8){ph='flower';fl=1;flower.d=1;cm=0;cmL=0}else if(k==9){ph='flower';fl=1;flower.d=1;cm=16.6;flower.e=1;openCase()}else if(k==10){ph='link';lk=0}}
+function ctl(){if(spd>=0)return;$('b2').style.display='none';flower.e=0;const back=(p,f)=>{ph=p;cv.style.filter='';f&&f()};
+if(ph=='pgrow'&&gt<=0){back('parents');$('b6').style.display='inline-block';setSpd(0)}
+else if(ph=='pzoom'&&zq<=0)back('pgrow',()=>gt=.999);else if(ph=='pmeio'&&pm<=0)back('pzoom',()=>zq=.999);else if(ph=='pzout'&&zq<=0)back('pmeio',()=>pm=.999);else if(ph=='cross'&&xt<=0)back('pzout',()=>zq=.999);
+else if(ph=='seed')back('cross',()=>xt=.999);else if(ph=='plant'&&pl<=0)back('seed');else if(ph=='sprout'&&sp<=0)back('plant',()=>pl=.999);else if(ph=='fzoom'&&fz<=0)back('sprout',()=>sp=.999);else if(ph=='f1m'&&fm<=0&&(!DI||f1s<=1)){f1s=0;back('fzoom',()=>fz=.999)}
+else if(ph=='flower'){if(cm>=0){if(cm<=0)cm=-1}else{flower.d=0;if(fl<=0)back('f1m',()=>{fm=1;fmh=DI?4.9:2.9;f1s=4})}}}
+function startMode(m){setSpd(1);lastCS=-2;restart();DI=m=='di';GA=DI?['RY','Ry','rY','ry']:['R','R','r','r'];ph='parents';$('modes').style.display='none';$('b6').style.display='inline-block';snd(300,.4,'triangle',.1,600)}
+function bigPop(t,sub){const e=$('pop');e.innerHTML='<div class="t">'+t+'</div>'+(sub?'<small>'+sub+'</small>':'');e.classList.add('on','bp');[523,659,784,1047].forEach((f,i)=>setTimeout(()=>snd(f,.3,'triangle',.13),i*120));clearTimeout(pop.t);pop.t=setTimeout(()=>e.classList.remove('on','bp'),3200)}
+function play(m){mode=m;init();ph='play';snaps={};step=0;setStep(0,1)}
+$('m1').onclick=()=>startMode('mono');$('m2').onclick=()=>startMode('di');
+// drawing helpers
+function wave(x,y,len,col,a,ph0){g.globalAlpha=a;g.strokeStyle=col;g.lineWidth=2.6;g.lineCap='round';g.beginPath();for(let k=0;k<=40;k++){const u=k/40,px=x-len/2+u*len,py=y+Math.sin(u*20+ph0)*6+Math.sin(u*47+ph0*2)*3;k?g.lineTo(px,py):g.moveTo(px,py)}g.stroke()}
+function badge0(x,y,n,a,r=9){if(!n)return;g.globalAlpha=a;g.fillStyle='#fde047';g.strokeStyle='#7a5d00';g.lineWidth=r/6;g.beginPath();g.arc(x,y,r,0,7);g.fill();g.stroke();g.fillStyle='#3a2a00';g.font='bold '+r*1.33+'px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(n,x,y+.5)}
+function strand(x,y,l,col,n,a,dbl){if(a<.02)return;const cc=cond>.05?'#9aa3b2':col,os=dbl?[-5,5]:[0];os.forEach((o,k)=>{wave(x,y+o,l,cc,a,k);badge(x-l*.25,y+o,n,a,8)})}
+function badge(x,y,n,a,r=9){if(rt){g.save();g.translate(x,y);g.rotate(-1.5708);badge0(0,0,n,a,r);g.restore()}else badge0(x,y,n,a,r)}
+function arm(x,y,ang,len,w){const ex=x+Math.cos(ang)*len,ey=y+Math.sin(ang)*len,px=-Math.sin(ang),py=Math.cos(ang);g.beginPath();g.moveTo(x+px*1.5,y+py*1.5);g.lineTo(ex+px*w/2,ey+py*w/2);g.arc(ex,ey,w/2,ang+1.5708,ang-1.5708,true);g.lineTo(x-px*1.5,y-py*1.5);g.closePath();g.fill()}
+function X(x,y,l,col,n,a,fd){const P=Math.PI,w=Math.max(5,l*.13);g.globalAlpha=a;g.fillStyle=col;
+const U=P/2;let A=fd==0?(m2?[[P+.42,.5,1],[P-.42,.5,1],[.42,.5,0],[-.42,.5,0]]:[[-U-.42,.5,1],[-U+.42,.5,1],[U-.42,.5,0],[U+.42,.5,0]]):[[P+.95,.42,0],[P-.95,.42,0],[P+.35,.58,1],[P-.35,.58,1]];
+if(fd==1)A=A.map(r=>[P-r[0],r[1],r[2]]);
+A.forEach(r=>arm(x,y,r[0],l*r[1],w));A.forEach(r=>{if(r[2])badge(x+Math.cos(r[0])*l*r[1]*.62,y+Math.sin(r[0])*l*r[1]*.62,n,a,7)});
+g.globalAlpha=a;g.fillStyle='#fff';g.strokeStyle='#333';g.lineWidth=1;g.beginPath();g.arc(x,y,Math.max(4,l*.06),0,7);g.fill();g.stroke()}
+function V(x,y,l,col,n,d,a,vt){if(vt){g.globalAlpha=a;g.strokeStyle=col;g.lineWidth=Math.min(8,l*.11+2);g.lineJoin='round';g.lineCap='round';const ey=y-d*l*.45,w=l*.22;g.beginPath();g.moveTo(x-w,ey);g.lineTo(x,y);g.lineTo(x+w,ey);g.stroke();g.fillStyle='#fff';g.beginPath();g.arc(x,y,3,0,7);g.fill();badge(x-w*.55,y-d*l*.25,n,a,7);return}g.globalAlpha=a;g.strokeStyle=col;g.lineWidth=Math.min(8,l*.11+2);g.lineJoin='round';g.lineCap='round';const ex=x-d*l*.2,h=l*.45;g.beginPath();g.moveTo(ex,y-h);g.lineTo(x,y);g.lineTo(ex,y+h);g.stroke();g.fillStyle='#fff';g.beginPath();g.arc(x,y,3,0,7);g.fill();badge(x-d*l*.12,y-h*.6,n,a,7)}
+function drawCh(c){const sv=cond;cond=c.cd;drawCh0(c);cond=sv}
+function drawCh0(c){const fd=mode=='mei'&&c.pr&&step>=13&&step<=16&&sep==0?c.side:0,l=LS(c),lc=LC(c),D=m2?ry*.5:rx*.5,a=1-cond;
+if((mode=='mit'||m2)&&sep>0){for(const d of[-1,1]){const x=m2?c.x:c.x+d*sep*D,y=m2?c.y+d*sep*D:c.y+d*4;strand(x,y,l,c.c,c.n,a,0);if(cond>.02)V(x,y,lc,c.c,c.n,d,cond,m2)}}
+else{const x=c.x+(sep>0?c.side*sep*D:0);if(!c.rep)strand(x,c.y,l,c.c,c.n,1,0);else{strand(x,c.y,l,c.c,c.n,a,1);if(cond>.02)X(x,c.y,lc,c.c,c.n,cond,fd)}}}
+function ell(x,y,a,b,fill,st,dash,al,s,e){g.globalAlpha=al;g.beginPath();g.ellipse(x,y,a,b,0,0,7);if(fill){g.fillStyle=fill;g.fill()}if(st){g.beginPath();g.ellipse(x,y,a,b,0,s||0,e==null?7:e);g.setLineDash(dash||[]);g.strokeStyle=st;g.lineWidth=3;g.stroke();g.setLineDash([])}}
+function cellDraw(){const F='rgba(245,197,24,.07)',S='#f5c518';
+if(m2&&cy2>0)cell4(F,S);else if(cyt<=0)ell(cx,cy,rx,ry,F,S,0,1);else{const o=rx*.5*cyt,r=rx-o,f=Math.acos(Math.min(1,o/r)),t1=Math.PI-f;ell(cx-o,cy,r,ry,F,null,0,1);ell(cx+o,cy,r,ry,F,null,0,1);ell(cx-o,cy,r,ry,0,S,0,1,f,2*Math.PI-f);ell(cx+o,cy,r,ry,0,S,0,1,-t1,t1)}
+if(step<=2)ell(cx,cy,rx*.78,ry*.82,'rgba(255,255,255,.03)','#7a8aa8',[6,5],(1-cond)*.8);
+if(step==0)for(let z=0;z<2;z++){const zy=cy+ZY[z]*ry;g.globalAlpha=1;g.setLineDash([6,5]);g.strokeStyle='#5b6b8c';g.lineWidth=1.5;g.save();g.beginPath();g.ellipse(cx,cy,rx-4,ry-4,0,0,7);g.clip();const t=z?cy+6:cy-ry*.86,hh=ry*.8,ww=1.5*rx;g.fillStyle=z?'rgba(34,197,94,.06)':'rgba(239,68,68,.06)';g.fillRect(cx-ww/2,t,ww,hh);g.strokeRect(cx-ww/2,t,ww,hh);g.restore();g.setLineDash([]);g.fillStyle='#8fa0c0';g.font='700 12px sans-serif';g.textAlign='center';g.fillText(z?'짧은 염색체 구역 (Y, y)':'긴 염색체 구역 (R, r)',cx,z?t+hh-6:t+14)}
+if(step>=3&&cyt<1){g.globalAlpha=1-cyt;for(const p of[-1,1]){const x=cx+p*rx*.86;g.fillStyle='#e2e8f0';g.beginPath();g.arc(x,cy,6,0,7);g.fill();g.strokeStyle='#94a3b8';g.lineWidth=1.5;for(let k=0;k<8;k++){g.beginPath();g.moveTo(x,cy);g.lineTo(x+Math.cos(k*.785)*13,cy+Math.sin(k*.785)*13);g.stroke()}}
+const D=rx*.5;g.strokeStyle='rgba(200,210,230,.55)';g.lineWidth=1.3;ch.forEach(c=>{if(!c.att)return;const us=mode=='mit'&&sep>0?[{x:c.x-sep*D,d:-1},{x:c.x+sep*D,d:1}]:sep>0?[{x:c.x+c.side*sep*D,d:c.side}]:[{x:c.x,d:mode=='mei'?c.side:0}];us.forEach(u=>[-1,1].forEach(p=>{if(u.d==0||u.d==p){g.globalAlpha=1-cyt;g.beginPath();g.moveTo(cx+p*rx*.86,cy);g.lineTo(u.x,c.y);g.stroke()}}))})}
+if(m2&&(step<21||step==22)&&cy2<1){g.globalAlpha=1-cy2;for(const d of[-1,1])for(const p of[-1,1]){g.fillStyle='#e2e8f0';g.beginPath();g.arc(cx+d*rx*.5,cy+p*ry*.88,5,0,7);g.fill()}
+g.strokeStyle='rgba(200,210,230,.5)';g.lineWidth=1.3;ch.forEach(c=>{if(!c.att)return;const dc=cx+c.side*rx*.5;pts(c).forEach((q,u)=>[-1,1].forEach(p=>{if(sep==0||u==(p<0?0:1)){g.beginPath();g.moveTo(dc,cy+p*ry*.88);g.lineTo(q[0],q[1]);g.stroke()}}))});
+if(step==22){g.globalAlpha=1;g.setLineDash([7,6]);g.strokeStyle='#8ecae6';g.lineWidth=2;g.beginPath();g.moveTo(cx-rx+6,cy);g.lineTo(cx+rx-6,cy);g.stroke();g.setLineDash([])}}
+if(step==4||step==15){g.globalAlpha=.9;g.setLineDash([7,6]);g.strokeStyle='#8ecae6';g.lineWidth=2;g.beginPath();g.moveTo(cx,cy-ry+8);g.lineTo(cx,cy+ry-8);g.stroke();g.setLineDash([]);g.fillStyle='#8ecae6';g.font='700 13px sans-serif';g.textAlign='center';g.fillText('적도면',cx,cy-ry-8)}
+if(step==22){g.globalAlpha=1;g.fillStyle='#8ecae6';g.font='700 13px sans-serif';g.textAlign='left';g.fillText('적도면',cx+rx+4>W-40?cx+rx-46:cx+rx+4,cy-6)}
+ch.forEach(drawCh);
+if(mode=='mei'&&step>=13&&step<=16&&sep==0)[[0,1],[2,3]].forEach(([a,b])=>{const A=ch[a],B=ch[b];if(A.pr&&B.pr){const mx=(A.x+B.x)/2;g.globalAlpha=1;g.fillStyle='#cbd5e1';g.font='11px sans-serif';g.textAlign='center';g.fillText('2가염색체',mx,A.y-LC(A)*.55-8)}});
+if(step==2||step==7)ch.forEach(c=>{if(step==2?c.cd<1:c.cd>0)pts(c).forEach(q=>{g.globalAlpha=.35+.35*Math.sin(pt*5);g.strokeStyle='#fff';g.setLineDash([4,4]);g.lineWidth=1.5;g.beginPath();g.ellipse(q[0],q[1],EX(c)/2+8,22,0,0,7);g.stroke();g.setLineDash([])})});
+if(step==3||step==14||step==18)ch.forEach(c=>{if(!c.att){g.globalAlpha=.5+.5*Math.sin(pt*6);g.strokeStyle='#fff';g.lineWidth=2;g.beginPath();g.arc(c.x,c.y,15,0,7);g.stroke()}});
+if(step==21||(step==99&&mode=='mei')){const e=Math.max(0,Math.min(1,(.45-cond)/.45));for(const d of[-1,1])for(const p of[-1,1])ell(cx+d*rx*.5,cy+p*ry*.5,rx*.4,ry*.42,'rgba(142,202,230,.06)','#8ecae6',0,e)}
+if(step==7||(step==99&&mode=='mit')){const e=Math.max(0,Math.min(1,(.45-cond)/.45));for(const d of[-1,1])ell(cx+d*rx*.5,cy,rx*.46,ry*.8,'rgba(142,202,230,.06)','#8ecae6',0,e)}
+ploidy();g.globalAlpha=1}
+// pea
+function peaGeom(){const R=Math.min(W,H)*.32,px=W/2,py=H*.5;return{R,px,py,wx:px+R*.28,wy:py-R*.22}}
+const JG=[1,.6,1.05,.7,.95,.55,1,.75,1.1,.65];
+function pea(s,heal,pulse){const{R,px,py,wx,wy}=peaGeom();g.save();g.translate(wx,wy);g.scale(s,s);g.translate(-wx,-wy);g.globalAlpha=1;
+const gr=g.createRadialGradient(px-R*.3,py-R*.3,R*.1,px,py,R);gr.addColorStop(0,'#fff59d');gr.addColorStop(.5,'#f5c518');gr.addColorStop(1,'#b88a00');g.fillStyle=gr;g.beginPath();g.arc(px,py,R,0,7);g.fill();
+g.fillStyle='rgba(255,255,255,.35)';g.beginPath();g.ellipse(px-R*.4,py-R*.5,R*.2,R*.1,-.6,0,7);g.fill();g.fillStyle='#8a5a1a';g.beginPath();g.ellipse(px-R*.55,py+R*.55,R*.08,R*.04,.8,0,7);g.fill();
+const w0=R*.11,wr=w0*(1-heal);
+if(heal<1){g.fillStyle='#6b2a12';g.strokeStyle='#3b1206';g.lineWidth=2;g.beginPath();JG.forEach((f,k)=>{const a=k/JG.length*6.283,r=wr*f;k?g.lineTo(wx+Math.cos(a)*r,wy+Math.sin(a)*r):g.moveTo(wx+Math.cos(a)*r,wy+Math.sin(a)*r)});g.closePath();g.fill();g.stroke()}
+if(heal>0){[[0,0],[.5,.2],[-.5,.3],[.2,-.5],[-.3,-.4],[.6,-.3]].forEach(o=>{g.globalAlpha=Math.min(1,heal*1.5);g.fillStyle='#ffe37a';g.strokeStyle='#c99a00';g.lineWidth=1.5;g.beginPath();g.arc(wx+o[0]*w0*.7,wy+o[1]*w0*.7,w0*.32,0,7);g.fill();g.stroke()});if(heal>.85){g.globalAlpha=(heal-.85)/.15;g.fillStyle='#f5c518';g.beginPath();g.arc(wx,wy,w0*1.15,0,7);g.fill()}}
+g.globalAlpha=1;if(pulse){g.strokeStyle='rgba(255,255,255,'+(.5+.5*Math.sin(pt*5))+')';g.lineWidth=2;g.beginPath();g.arc(wx,wy,w0*(1.6+.3*Math.sin(pt*5)),0,7);g.stroke()}
+g.restore()}
+function bgCell(a){g.globalAlpha=a;const r=g.createRadialGradient(cx,cy,10,cx,cy,Math.max(W,H)*.7);r.addColorStop(0,'#2a2110');r.addColorStop(1,'#0e1116');g.fillStyle=r;g.fillRect(0,0,W,H);g.globalAlpha=1}
+const ez=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+function loop(ts){requestAnimationFrame(loop);gauge();ctl();drawBar();const dt=Math.min(.05,(ts-lastT)/1000||0);lastT=ts;pt+=dt;const dts=dt*spd;g.globalAlpha=1;g.fillStyle='#0e1116';g.fillRect(0,0,W,H);
+if(ph=='link')link(dts);else if(ph=='f1m')f1m(dts);else if(ph=='arr')arrScene(dt);else if(ph=='flower')flower(dts);else if(ph=='choose'||ph=='parents')parents();else if(ph=='pgrow')pgrow(dts);else if(ph=='pzoom')pzoom(dts);else if(ph=='pzout')pzout(dts);else if(ph=='pmeio')pmeio(dts);else if(ph=='cross')cross(dts);else if(ph=='seed')seed();else if(ph=='plant')plant(dts);else if(ph=='intro'){pea(1,0,1);g.fillStyle='#e8ecf2';g.font='600 16px sans-serif';g.textAlign='center';g.fillText('🫛 상처 입은 완두콩(Pisum sativum)',W/2,H*.1+env0());g.font='14px sans-serif';g.fillStyle='#ffe37a';g.fillText('빛나는 상처를 눌러 세포 속으로 들어가 보세요',W/2,H*.9)}
+else if(ph=='zin'){zt=Math.min(1,zt+dt/1.6);const e=ez(zt),{wx,wy}=peaGeom();cv.style.filter='blur('+(Math.sin(zt*Math.PI)*6).toFixed(1)+'px)';bgCell(e);g.globalAlpha=Math.max(0,1-Math.max(0,zt-.5)*2);pea(1+e*11,0,0);if(zt>=1){cv.style.filter='';play('mit')}}
+else if(ph=='sprout'){sp=cl01(sp+dts/10);scene(Math.min(1,sp/.5),Math.max(0,Math.min(1,(sp-.5)/.2)));g.fillStyle='#e8ecf2';g.font='600 16px sans-serif';g.textAlign='center';g.fillText('🌱 F₁('+F1()+')이 싹을 틔워 자라 꽃이 핍니다',W/2,H*.08);if(sp>=1){ph='fzoom';fz=0;snd(400,1,'sine',.1,900)}}
+else if(ph=='fzoom'){fz=cl01(fz+dts/3.5);const e=ez(fz),a=anth();cv.style.filter='blur('+(Math.sin(fz*Math.PI)*6).toFixed(1)+'px)';cam(1+e*13,a[0],a[1]);scene(1,1,1+e*13);g.restore();bgCell(e);g.fillStyle='#ffe37a';g.font='600 15px sans-serif';g.textAlign='center';g.fillText('F₁ 꽃밥(수술) 속 생식모세포로 줌인!',W/2,H*.08);if(fz>=1){cv.style.filter='';ph='f1m';fm=0;fmh=0;f1s=0}}
+else if(ph=='fuse')fuse(dt)
+else if(ph=='play'){bgCell(1);cellDraw()}
+else if(ph=='outro'){ot=Math.min(1,ot+dt/5);const zo=Math.min(1,ot/.4),h=Math.max(0,(ot-.4)/.6);cv.style.filter='blur('+(Math.sin(zo*Math.PI)*5).toFixed(1)+'px)';bgCell(1-zo);pea(1+(1-ez(zo))*11,ez(h),0);
+if(ot>=1&&!conf.length&&!outro.d){outro.d=1;cv.style.filter='';snd(700,.4,'sine',.2,250);setTimeout(()=>snd(900,.3,'sine',.15,400),200);for(let i=0;i<90;i++)conf.push({x:W/2,y:H*.45,vx:(Math.random()-.5)*9,vy:-Math.random()*10-2,c:['#f5c518','#ef4444','#3b82f6','#22c55e','#fff'][i%5]});$('b3').style.display='inline-block'}
+if(ot>=1){g.globalAlpha=1;g.fillStyle='#ffe37a';g.font='700 22px sans-serif';g.textAlign='center';g.fillText('🎉 상처가 깨끗하게 치유되었어요!',W/2,H*.12);g.font='13px sans-serif';g.fillStyle='#cbd5e1';g.fillText('새로 만들어진 세포가 상처를 채웠습니다',W/2,H*.12+24)}
+conf.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.35;g.fillStyle=p.c;g.fillRect(p.x,p.y,6,9)})}}
+function env0(){return 0}
+const outro={d:0};
+$('b3').addEventListener('click',()=>{outro.d=0});
+requestAnimationFrame(loop);
+let pm=0,xt=0,pl=0,fl=0,cm=-1,cmL=0;
+let GA=['R','R','r','r'];let myArr=1,ar=0;
+const GC={R:'#dc2626',r:'#2563eb',Y:'#b45309',y:'#15803d'};
+function ctext(t,x,y,sz){g.font='900 '+sz+'px sans-serif';g.textAlign='left';g.textBaseline='middle';const w=[...t].map(c=>g.measureText(c).width),tw=w.reduce((a,b)=>a+b,0);let xx=x-tw/2;[...t].forEach((c,i)=>{g.fillStyle=GC[c]||'#111';g.fillText(c,xx,y);xx+=w[i]});g.textBaseline='alphabetic';g.textAlign='center'}
+function gem(x,y,r,al,fill,ring,a){g.globalAlpha=a;g.fillStyle=fill;g.strokeStyle=ring;g.lineWidth=r*.2;g.beginPath();g.arc(x,y,r,0,7);g.fill();g.stroke();ctext(al,x,y+r*.08,r*(al.length>1?.95:1.25))}
+function arrScene(dt){ar=Math.min(1,ar+dt/7);bgCell(1);const rr=Math.min(W*.2,H*.12);
+cap('감수 1분열 중기 – 두 쌍의 상동염색체는 서로 독립적으로 배열돼요',H*.07,16);
+[1,2].forEach((A,i)=>{const a=cl01((ar-i*.3)/.2);if(a<=0)return;const x=W*.24,y0=H*(.3+.29*i),yy=[y0-.28*rr,y0+.3*rr];g.globalAlpha=a;
+ell(x,y0,rr,rr*.85,FC,SC,0,a);g.setLineDash([4,4]);g.strokeStyle='#8ecae6';g.lineWidth=1.5;g.beginPath();g.moveTo(x,y0-rr*.8);g.lineTo(x,y0+rr*.8);g.stroke();g.setLineDash([]);
+const sL=A==1?['#fca5a5','Y']:['#93c5fd','y'],sR=A==1?['#93c5fd','y']:['#fca5a5','Y'];
+Xs(x-.14*rr,yy[0],rr*.5,'#ef4444','R',a,0,rr);Xs(x+.14*rr,yy[0],rr*.5,'#3b82f6','r',a,0,rr);Xs(x-.14*rr,yy[1],rr*.28,sL[0],sL[1],a,0,rr);Xs(x+.14*rr,yy[1],rr*.28,sR[0],sR[1],a,0,rr);
+lbl(x,y0-rr-12,'배열 '+(A==1?'①':'②')+(myArr==A?'  ✔ 내가 만든 배열':''),13);
+g.globalAlpha=a;g.strokeStyle='#e8ecf2';g.lineWidth=2;g.beginPath();g.moveTo(x+rr+6,y0);g.lineTo(W*.48,y0);g.lineTo(W*.48-8,y0-6);g.moveTo(W*.48,y0);g.lineTo(W*.48-8,y0+6);g.stroke();
+const t1='R'+sL[1],t2='r'+sR[1];[[W*.6,t1,'#ef4444',sL[0]],[W*.84,t2,'#3b82f6',sR[0]]].forEach(q=>{for(const v of[-1,1])gamete(q[0],y0+v*.3*rr,rr*.72,q[2],q[3],q[1][0],a,0,q[1][1]);lbl(q[0],y0+.72*rr,q[1]+' × 2',14)})});
+if(ar>.75){const a=cl01((ar-.75)/.15);g.globalAlpha=a;lbl(W/2,H*.86,'두 배열은 같은 확률 → RY : Ry : rY : ry = 1 : 1 : 1 : 1',14)}
+if(ar>=1&&!arrScene.d){arrScene.d=1;ok();$('b2').textContent='🌸 꽃으로 나가 생식세포 보기';$('b2').style.display='inline-block'}}
+function flower(dt){if(cm<0)fl=cl01(fl+dt/9);const{fr:r,hx,hy}=fg(),a=anth(),o=ovy(),z=ez(cl01(fl/.3)),KF=Math.min(2,H*.26/(r*1.3)),K=14+(KF-14)*z,fx=a[0]+(hx-a[0])*z,fy=a[1]+(hy+r*.15-a[1])*z;
+cv.style.filter=fl<.3?'blur('+(Math.sin(fl/.3*Math.PI)*5).toFixed(1)+'px)':'';cam(K,fx,fy);scene(1,1,9);
+const pg=[[-.33,-.6],[-.7,-.42],[-.74,-.02],[-.4,.16]],gr=r*.14;
+pg.forEach((q,i)=>{const k=cl01((fl-.35-i*.05)/.08);if(k>0)gem(a[0]+q[0]*r*k,a[1]+q[1]*r*k+(1-k)*0,gr*(.4+.6*k),GA[i],'#fef9c3','#eab308',k)});
+const cx2=hx+r*.6,cy2b=o[1]+r*.22,cr=r*.4,ek=cl01((fl-.62)/.1);
+if(ek>0){g.globalAlpha=ek;g.strokeStyle='#f9a8d4';g.lineWidth=r*.02;g.setLineDash([r*.04,r*.03]);g.beginPath();g.arc(o[0],o[1],r*.34,0,7);g.stroke();g.setLineDash([]);g.fillStyle='#3f1d2e';g.beginPath();g.arc(cx2,cy2b,cr,0,7);g.fill();g.stroke();
+[[-.15,-.14],[.15,-.14],[-.15,.15],[.15,.15]].forEach((q,i)=>{const k=cl01((fl-.68-i*.05)/.08);if(k>0)gem(cx2+q[0]*r,cy2b+q[1]*r,gr*(.4+.6*k),GA[i],'#fce7f3','#ec4899',k)})}
+if(fl>.5)lbl(a[0]-r*.55,a[1]-r*.72,'꽃밥 → 꽃가루(정핵)',14/K);if(fl>.75)lbl(cx2,cy2b+cr+r*.1,'씨방 속 난세포',14/K);
+g.restore();g.globalAlpha=1;
+const S=(wx,wy)=>[W/2+(wx-fx)*K,H/2+(wy-fy)*K],PP4=pg.map(q=>S(a[0]+q[0]*r,a[1]+q[1]*r)),EE4=[[-.15,-.14],[.15,-.14],[-.15,.15],[.15,.15]].map(q=>S(cx2+q[0]*r,cy2b+q[1]*r));
+if(cm>=0){cm=Math.max(0,Math.min(16.6,cm+dt/1.6));const n=Math.min(16,Math.floor(cm)),BX=DI?[W*.14,W*.38,W*.62,W*.86]:[W*.2,W*.5,W*.8],BY=H*(W>H?.76:.7),cnt=DI?[0,0,0,0]:[0,0,0],gts=DI?['둥근·황색','둥근·녹색','주름·황색','주름·녹색']:['RR','Rr','rr'],LC=DI?['#fbbf24','#4ade80','#f97316','#15803d']:['#f87171','#c084fc','#60a5fa'];
+g.globalAlpha=.9;g.fillStyle='#11151c';g.strokeStyle='#2f3848';g.lineWidth=1;g.beginPath();g.roundRect?g.roundRect(6,BY-20,W-12,132,14):g.rect(6,BY-20,W-12,132);g.fill();g.stroke();
+const bi=p=>{const a1=GA[p>>2],b1=GA[p&3];if(!DI)return a1==b1?(a1=='R'?0:2):1;const rd=a1[0]=='R'||b1[0]=='R',yl=a1[1]=='Y'||b1[1]=='Y';return(rd?0:2)+(yl?0:1)},slot=(b,k)=>DI?[BX[b]+((k%3)-1)*19,BY+Math.floor(k/3)*19]:[BX[b]+((k%4)-1.5)*22,BY+Math.floor(k/4)*22];
+for(let p=0;p<16;p++){if(p>cm)break;const b=bi(p),cur=p==n&&cm<16,f=cur?cm-p:1,A=PP4[p>>2],E=EE4[p&3];
+g.globalAlpha=cur?.95:.3;g.strokeStyle=LC[b];g.lineWidth=cur?3:1.5;g.beginPath();g.moveTo(A[0],A[1]);const lf=Math.min(1,f*2);g.lineTo(A[0]+(E[0]-A[0])*lf,A[1]+(E[1]-A[1])*lf);g.stroke();
+if(cur&&f<.6){lbl(W/2,H*.2+10,GA[p>>2]+' + '+GA[p&3],15)}
+const sl=slot(b,cnt[b]);if(f>.5){const m=ez(cl01((f-.5)*2.2)),x=E[0]+(sl[0]-E[0])*m,y=E[1]+(sl[1]-E[1])*m;peaDraw(x,y,8,DI?b>1:b==2,1,DI&&b%2)}cnt[b]++}
+if(n>cmL){cmL=n;snd(420+[0,120,240,360][bi(Math.max(0,n-1))],.08,'triangle',.07)}
+g.globalAlpha=1;BX.forEach((x,b)=>lbl(x,BY+74,gts[b]+' '+cnt[b],DI?12.5:15));
+if(cm>=16){g.fillStyle='#e8ecf2';g.font='700 13px sans-serif';g.textAlign='center';g.fillText(DI?'모양 둥근 12 : 주름 4 = 3:1   ·   색 황색 12 : 녹색 4 = 3:1':'둥근 '+(cnt[0]+cnt[1])+' : 주름진 '+cnt[2]+'  →  3 : 1',W/2,BY+100,W-20)}
+cap(cm<16?(DI?'꽃가루 4종류 × 난세포 4종류':'꽃가루 4개 × 난세포 4개')+' = 16가지 수정! ('+Math.min(16,n+1)+'/16)':(DI?'16가지 수정 → 둥근황색 9 : 둥근녹색 3 : 주름황색 3 : 주름녹색 1':'16가지 수정 → RR 4 : Rr 8 : rr 4 = 1 : 2 : 1'),H*.08);
+if(cm>=16.5&&!flower.e){flower.e=1;ok();$('b2').textContent='✏️ 직접 유전자형 써 보기';$('b2').style.display='inline-block'}
+return}
+cap(fl<.3?'F₁ 꽃 전체로 줌아웃…':fl<.62?(DI?'꽃가루(정핵): RY, Ry, rY, ry → 1 : 1 : 1 : 1':'꽃가루(정핵): R, R, r, r → R : r = 1 : 1'):(DI?'씨방의 난세포도 RY : Ry : rY : ry = 1 : 1 : 1 : 1':'씨방의 난세포도 R : r = 1 : 1 로 만들어져요'),H*.08);
+if(fl>.85&&cm<0){g.globalAlpha=1;g.fillStyle='#94a3b8';g.font='13px sans-serif';g.textAlign='center';g.fillText('※ 실제 식물은 감수분열로 생긴 4개 중 1개만 난세포가 되지만,',W/2,H*.8);g.fillText('비율을 보기 위해 모두 나타냈어요',W/2,H*.8+18)}
+if(fl>=1&&$('b2').style.display!='inline-block'&&!flower.d){flower.d=1;$('b2').textContent='🌼 자가수분시키기';$('b2').style.display='inline-block';ok()}}
+const cl01=v=>Math.max(0,Math.min(1,v));
+function peaDraw(x,y,r,wr,a=1,gn=0){g.save();g.globalAlpha=a;const gr=g.createRadialGradient(x-r*.3,y-r*.3,r*.1,x,y,r*1.05);gr.addColorStop(0,gn?'#ecfccb':'#fff59d');gr.addColorStop(.55,gn?'#84cc16':'#f5c518');gr.addColorStop(1,gn?'#3f6212':'#a67c00');g.fillStyle=gr;g.beginPath();
+for(let k=0;k<=72;k++){const t=k/72*6.283,rr=r*(wr?1+.07*Math.sin(7*t+1)+.04*Math.sin(13*t):1);k?g.lineTo(x+Math.cos(t)*rr,y+Math.sin(t)*rr*(wr?.92:1)):g.moveTo(x+Math.cos(t)*rr,y+Math.sin(t)*rr*(wr?.92:1))}g.closePath();g.fill();
+if(wr){g.strokeStyle=gn?'rgba(40,70,0,.6)':'rgba(120,80,0,.55)';g.lineWidth=Math.max(1.2,r*.03);g.lineCap='round';[[-.5,-.2,.4,.9],[.2,-.5,.35,2.2],[-.1,.35,.45,-.3],[.45,.2,.3,1.3],[-.45,.45,.25,.6]].forEach(q=>{g.beginPath();g.arc(x+q[0]*r,y+q[1]*r,q[2]*r,q[3],q[3]+1.6);g.stroke()})}
+else{g.fillStyle='rgba(255,255,255,.35)';g.beginPath();g.ellipse(x-r*.38,y-r*.45,r*.2,r*.1,-.6,0,7);g.fill()}
+g.fillStyle='#8a5a1a';g.beginPath();g.ellipse(x-r*.55,y+r*.5,r*.08,r*.04,.8,0,7);g.fill();g.restore()}
+function cap(t,y=H*.08,sz=17){if(ph!='choose')y+=40;if(W>700)sz+=3;g.globalAlpha=1;g.fillStyle='#ffe37a';g.font='700 '+sz+'px sans-serif';g.textAlign='center';const w=W-24,ws=t.split(' ');let ln='',yy=y;ws.forEach(q=>{if(g.measureText(ln+q).width>w){g.fillText(ln,W/2,yy);ln='';yy+=sz*1.3}ln+=q+' '});g.fillText(ln,W/2,yy)}
+function PP(){const r=Math.min(W*.2,H*.18);return{r,L:[W*.27,H*.46],Rt:[W*.73,H*.46]}}
+function PG(){const gy=H*.73,pr=Math.min(W*.14,H*.08),fy=H*.31,r=Math.min(W*.15,H*.1);return{gy,pr,fy,r,xs:[W*.27,W*.73]}}
+function pscene(gp,bl,lb=1){const{gy,pr,fy,r,xs}=PG();g.globalAlpha=1;g.fillStyle='#4a3320';g.fillRect(-W,gy,W*3,H*2);
+xs.forEach((x,wr)=>{const py=gy-pr*.85,top=py-pr*.6,sh=(top-fy)*gp,ty=top-sh;
+if(gp>0){g.globalAlpha=1;g.strokeStyle='#4ade80';g.lineWidth=5;g.lineCap='round';g.beginPath();g.moveTo(x,top);g.quadraticCurveTo(x+10,top-sh/2,x,ty);g.stroke();
+if(gp>.3)for(const s of[-1,1]){g.fillStyle='#22c55e';g.beginPath();g.ellipse(x+s*20,top-sh*.4,20*gp,8*gp,-s*.5,0,7);g.fill()}}
+if(bl>0)flowerAt(x,fy,r,bl,9);peaDraw(x,py,pr,wr,1,DI&&wr);if(lb)lbl(x,gy+24,DI?(wr?'주름진·녹색 rryy':'둥근·황색 RRYY'):(wr?'주름진 완두 rr':'둥근 완두 RR'),14)});
+if(lb&&gp==0){g.globalAlpha=1;g.fillStyle='#e8ecf2';g.font='800 26px sans-serif';g.textAlign='center';g.fillText('×',W/2,gy-pr*.75)}}
+function parents(){bgCell(.4);pscene(0,0);if(ph=='parents')cap(DI?'부모 세대(P): 순종 둥근·황색(RRYY) × 순종 주름진·녹색(rryy)':'부모 세대(P): 순종 둥근 완두(RR) × 순종 주름진 완두(rr)',H*.1)}
+let gt=0,zq=0;
+function pgrow(dt){gt=cl01(gt+dt/8);bgCell(.4);pscene(ez(cl01(gt/.6)),ez(cl01((gt-.6)/.3)));cap('🌱 두 완두콩이 싹을 틔워 자라 꽃이 피어요',H*.1);if(gt>=1){ph='pzoom';zq=0;snd(400,1,'sine',.1,900)}}
+function pzoom(dt){zq=cl01(zq+dt/3.5);const e=ez(zq),{fy}=PG();cv.style.filter='blur('+(Math.sin(zq*Math.PI)*6).toFixed(1)+'px)';cam(1+e*5,W/2,H/2+(fy-H/2)*e);pscene(1,1,0);g.restore();bgCell(e);cap('꽃밥과 씨방 속 생식모세포로 줌인!',H*.1);if(zq>=1){cv.style.filter='';ph='pmeio';pm=0}}
+function pzout(dt){zq=cl01(zq+dt/3.5);const e=ez(zq),{fy}=PG();cv.style.filter='blur('+(Math.sin(zq*Math.PI)*6).toFixed(1)+'px)';cam(6-5*e,W/2,fy+(H/2-fy)*e);pscene(1,1,0);g.restore();bgCell(1-e);cap('다시 꽃으로 줌아웃!',H*.1);if(zq>=1){cv.style.filter='';ph='cross';xt=0}}
+const PO=[[-.35,-.55],[-.66,-.38],[-.7,-.02],[-.4,.14]],EO=[[-.2,-.2],[.2,-.2],[-.2,.2],[.2,.2]];
+function pollP(x,sd,i){const{fy,r}=PG();return[x+sd*.55*r-sd*PO[i][0]*r,fy-.26*r+PO[i][1]*r]}
+function callC(x){const{fy,r}=PG();return[x+.58*r,fy+.78*r]}
+function eggP(x,i){const c=callC(x),{r}=PG();return[c[0]+EO[i][0]*r,c[1]+EO[i][1]*r]}
+function mix(x,y,rr,a){g.globalAlpha=a;g.fillStyle='#fef3c7';g.strokeStyle='#f59e0b';g.lineWidth=rr*.2;g.beginPath();g.arc(x,y,rr*1.3,0,7);g.fill();g.stroke();ctext(DI?'RrYy':'Rr',x,y+rr*.06,rr*(DI?.72:1.05));return;g.globalAlpha=a;g.fillStyle='#fef3c7';g.strokeStyle='#f59e0b';g.lineWidth=rr*.22;g.beginPath();g.arc(x,y,rr*1.25,0,7);g.fill();g.stroke();g.font='900 '+rr*1.2+'px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillStyle='#dc2626';g.fillText('R',x-rr*.38,y+rr*.08);g.fillStyle='#2563eb';g.fillText('r',x+rr*.42,y+rr*.08);g.textBaseline='alphabetic'}
+function cross(dt){if(cross.q!=1)xt=cl01(xt+dt/(xt<.66?24:16));if(cross.q!=2&&xt>=.9){xt=.9;if(!cross.q){cross.q=1;openDom()}}
+const{fy,r,xs}=PG(),gr=r*.15,[x0,x1]=xs,Cx=W/2,Cy=H*.5,st=[x1,fy-.5*r],ov=[x1,fy+.55*r],eg=eggP(x1,0);
+const zk=ez(cl01((xt-.66)/.12)),fade=1-cl01((xt-.64)/.06);
+if(xt<.8){bgCell(.4);cv.style.filter=xt>.66?'blur('+(Math.sin(zk*Math.PI)*5).toFixed(1)+'px)':'';cam(1+zk*9,W/2+(eg[0]-W/2)*zk,H/2+(eg[1]-H/2)*zk);pscene(1,1,1);
+xs.forEach((x,wr)=>{const al=DI?(wr?'ry':'RY'):(wr?'r':'R'),sd=wr?1:-1,c=callC(x),ck=cl01((xt-.06)/.05);
+if(ck>0){g.globalAlpha=ck;g.strokeStyle='#f9a8d4';g.lineWidth=1.5;g.setLineDash([4,3]);g.beginPath();g.arc(x,fy+.55*r,r*.34,0,7);g.stroke();g.setLineDash([]);g.fillStyle='#3f1d2e';g.beginPath();g.arc(c[0],c[1],.5*r,0,7);g.fill();g.stroke()}
+for(let i=0;i<4;i++){const k=cl01((xt-.01-i*.01)/.03);if(k>0&&(wr||xt<.15)){const p=pollP(x,sd,i);gem(p[0],p[1],gr*(.4+.6*k),al,'#fef9c3','#eab308',k*(wr?fade:1))}
+const e2=cl01((xt-.07-i*.01)/.03);if(e2>0){const p=eggP(x,i);if(wr&&xt>.58)mix(p[0],p[1],gr,1);else gem(p[0],p[1],gr*(.4+.6*e2),al,'#fce7f3','#ec4899',e2*(wr?1:fade))}}
+if(ck>0&&xt<.64){lbl(pollP(x,sd,0)[0],fy-1.15*r,'정핵 '+al+' ×4',12);lbl(c[0],c[1]+.68*r,'난세포 '+al+' ×4',12)}});
+for(let i=0;i<4&&xt>=.15&&xt<.64;i++){const m=ez(cl01((xt-.15-i*.035)/.14)),p0=pollP(x0,-1,i),ss=[st[0]+(i-1.5)*gr*.7,st[1]-gr*.6];
+if(xt<.4){const px=p0[0]+(ss[0]-p0[0])*m,py=p0[1]+(ss[1]-p0[1])*m-Math.sin(m*Math.PI)*r*1.4;gem(px,py,gr*(m>=1?.75:1.05),DI?'RY':'R','#fef9c3','#eab308',1)}
+else{const e=eggP(x1,i),t2=cl01((xt-.4-i*.02)/.14),L1=Math.hypot(ov[0]-st[0],ov[1]-st[1]),L2=Math.hypot(e[0]-ov[0],e[1]-ov[1]),d=t2*(L1+L2);let sx,sy;
+g.globalAlpha=1;g.strokeStyle='#fde047';g.lineWidth=1.6;g.beginPath();g.moveTo(st[0],st[1]);if(d<L1){sx=st[0]+(ov[0]-st[0])*d/L1;sy=st[1]+(ov[1]-st[1])*d/L1;g.lineTo(sx,sy)}else{g.lineTo(ov[0],ov[1]);const f=(d-L1)/L2;sx=ov[0]+(e[0]-ov[0])*f;sy=ov[1]+(e[1]-ov[1])*f;g.lineTo(sx,sy)}g.stroke();
+gem(ss[0],ss[1],gr*.7,DI?'RY':'R','#fef9c3','#eab308',1);if(t2<1){g.fillStyle='#dc2626';g.beginPath();g.arc(sx,sy,gr*.4,0,7);g.fill()}}}
+if(xt>.58&&xt<.66){const f=(xt-.58)/.08;for(let i=0;i<4;i++){const e=eggP(x1,i);g.globalAlpha=1-f;g.strokeStyle='#fff';g.lineWidth=2;g.beginPath();g.arc(e[0],e[1],gr*(1.2+f*2.5),0,7);g.stroke()}}
+if(xt>.58&&xt<.66)lbl(callC(x1)[0],callC(x1)[1]+.68*r,'수정란 '+F1()+' ×4',12);
+g.restore();bgCell(cl01((xt-.74)/.06));
+cap(xt<.15?(DI?'각 꽃의 꽃가루(정핵)와 난세포 – RRYY는 모두 RY, rryy는 모두 ry':'각 꽃의 꽃가루(정핵)와 난세포 – RR은 모두 R, rr은 모두 r'):xt<.4?(DI?'타가수분: 둥근·황색 완두의 꽃가루(RY)들이 주름진·녹색 완두의 암술머리로!':'타가수분: 둥근 완두의 꽃가루(R)들이 주름진 완두의 암술머리로!'):xt<.58?(DI?'꽃가루관을 따라 정핵(RY)이 난세포(ry) 4개로 각각 이동해요':'꽃가루관을 따라 정핵(R)이 난세포(r) 4개로 각각 이동해요'):(DI?'수정! 4개 모두 RY + ry → RrYy':'수정! 4개 모두 R + r → Rr'),H*.08)}
+else{cv.style.filter='';const k=ez(cl01((xt-.92)/.07)),z=Math.min(W,H)*.42,zp=Math.min(W,H)*.17;bgCell(1);
+if(xt<.92){const a=ez(cl01((xt-.8)/.06));ell(Cx,Cy,z*.6,z*.5,FC,SC,0,1);rod(Cx-z*.12,Cy-z*.14,z*.34,'#ef4444','R',1,z);rod(Cx-z*.12,Cy+z*.02,z*.34,'#3b82f6','r',1,z);rod(Cx+z*.24,Cy-z*.14,z*.17,'#fca5a5',DI?'Y':'',1,z);rod(Cx+z*.24,Cy+z*.02,z*.17,'#93c5fd',DI?'y':'',1,z);
+lbl(Cx,Cy+z*.6,'수정란 '+F1(),18);g.save();g.globalAlpha=a;g.translate(W/2,H*.22);g.scale(.6+.4*a,.6+.4*a);g.fillStyle='#ffe37a';g.font='900 '+Math.min(48,W*.12)+'px sans-serif';g.textAlign='center';g.shadowColor='rgba(245,197,24,.6)';g.shadowBlur=20;g.fillText('잡종 1대 (F₁)',0,0);g.shadowBlur=0;g.font='600 16px sans-serif';g.fillStyle='#cbd5e1';g.fillText((DI?'빨강 계열은 RRYY, 파랑 계열은 rryy 부모에게서 왔어요':'빨강 R은 둥근 완두, 파랑 r은 주름진 완두에게서 왔어요'),0,34,W-20);g.restore()}
+else{ell(Cx,Cy,z*.6,z*.5,FC,SC,0,1-k);peaDraw(Cx,Cy,zp*k+1,0,k);cap((DI?'수정란이 자라 잡종 1대 완두콩이 되었어요 – 둥글고 황색!':'수정란이 자라 잡종 1대 완두콩이 되었어요 – 둥근 모양!'),H*.1)}}
+if(xt>=1){ph='seed';$('b7').style.display='none';snd(700,.3,'sine',.15,300)}}
+const PEA_M=(()=>{let d='';for(let k=0;k<=72;k++){const t=k/72*6.283,rr=42*(1+.07*Math.sin(7*t+1)+.04*Math.sin(13*t));d+=(k?'L':'M')+(Math.cos(t)*rr).toFixed(1)+' '+(Math.sin(t)*rr*.92).toFixed(1)}
+return '<svg viewBox="-50 -50 100 100"><defs><radialGradient id="pg3" cx="35%" cy="35%"><stop offset="0" stop-color="#fff59d"/><stop offset=".55" stop-color="#f5c518"/><stop offset="1" stop-color="#a67c00"/></radialGradient><clipPath id="cl"><rect x="-50" y="-50" width="50" height="100"/></clipPath><clipPath id="cr"><rect x="0" y="-50" width="50" height="100"/></clipPath></defs><circle r="42" fill="url(#pg3)" clip-path="url(#cl)"/><path d="'+d+'Z" fill="url(#pg3)" clip-path="url(#cr)"/><g fill="none" stroke="rgba(120,80,0,.6)" stroke-width="2.5" clip-path="url(#cr)"><path d="M5 -25 q12 5 14 18"/><path d="M20 12 q4 10 -4 18"/></g><line x1="0" y1="-44" x2="0" y2="44" stroke="rgba(0,0,0,.25)" stroke-dasharray="3 3"/></svg>'})();
+let svgN=0;function openDomM(){const D=$('dom');D.innerHTML='<h2>🤔 잡종 1대(Rr)의 완두콩 모양은?</h2><p class="sub">둥근 유전자 <b class="R">R</b>과 주름진 유전자 <b class="r">r</b>을 모두 가진 잡종 1대는 어떤 모양일까요?</p><div class="opts"><button data-a="1">'+peaSVG(0,0)+'<span>둥글다</span></button><button data-a="0">'+peaSVG(1,0)+'<span>주름지다</span></button><button data-a="0">'+PEA_M+'<span>섞인 모습<br><small>(왼쪽 둥글고<br>오른쪽 주름짐)</small></span></button></div><div id="dans"></div>';
+D.querySelectorAll('.opts button').forEach(b=>b.onclick=()=>{if(D.dataset.done)return;D.dataset.done=1;const c=b.dataset.a=='1';setTimeout(()=>bigPop('우열의 법칙 확인!','잡종 1대에는 우성 형질만 나타나요'),400);b.classList.add(c?'ok':'no');D.querySelector('[data-a="1"]').classList.add('ok');snd(c?880:160,.35,c?'sine':'sawtooth',.12);
+$('dans').innerHTML='<div class="verdict">'+(c?'⭕ 정답! 잡종 1대는 <b>둥근 완두</b>예요.':'❌ 아쉬워요! 정답은 <b>둥근 완두</b>예요.')+'</div><div class="law"><div class="lt">📘 우열의 법칙</div><p>대립 형질(둥근 ↔ 주름진)이 다른 두 <b>순종</b>을 교배하면, 잡종 1대에서는 <b>한 가지 형질만</b> 나타나요.</p><div class="dr"><div><b class="R">R</b> 둥근 모양<br><em>우성</em><small>잡종 1대에서 나타나는 형질</small></div><div><b class="r">r</b> 주름진 모양<br><em>열성</em><small>잡종 1대에서 나타나지 않는 형질</small></div></div><p>섞인 모양이 되지 않고, <b class="r">r</b>은 사라진 것이 아니라 <b>숨어 있을 뿐</b>이에요.<br>👉 숨은 r은 다음 세대(잡종 2대)에서 다시 나타날까요?</p></div><button id="dgo">🫛 잡종 1대 완두콩 보기</button>';
+$('dgo').onclick=()=>{D.style.display='none';cross.q=2};setTimeout(()=>$('dans').scrollIntoView({behavior:'smooth',block:'start'}),150)});
+delete D.dataset.done;D.style.display='flex';D.scrollTop=0}
+function peaSVG(wr,gn){const c=gn?['#ecfccb','#84cc16','#3f6212']:['#fff59d','#f5c518','#a67c00'],id='pz'+(svgN++);let body;
+if(wr){let d='';for(let k=0;k<=72;k++){const t=k/72*6.283,rr=42*(1+.07*Math.sin(7*t+1)+.04*Math.sin(13*t));d+=(k?'L':'M')+(Math.cos(t)*rr).toFixed(1)+' '+(Math.sin(t)*rr*.92).toFixed(1)}body='<path d="'+d+'Z" fill="url(#'+id+')"/><g fill="none" stroke="'+(gn?'rgba(40,70,0,.6)':'rgba(120,80,0,.6)')+'" stroke-width="2.5" stroke-linecap="round"><path d="M-30 -20 q10 -12 22 -4"/><path d="M5 -25 q12 5 14 18"/><path d="M-18 12 q10 10 22 2"/><path d="M20 12 q4 10 -4 18"/></g>'}
+else body='<circle r="42" fill="url(#'+id+')"/><ellipse cx="-16" cy="-19" rx="9" ry="4" fill="rgba(255,255,255,.4)" transform="rotate(-35 -16 -19)"/>';
+return '<svg viewBox="-50 -50 100 100"><defs><radialGradient id="'+id+'" cx="35%" cy="35%"><stop offset="0" stop-color="'+c[0]+'"/><stop offset=".55" stop-color="'+c[1]+'"/><stop offset="1" stop-color="'+c[2]+'"/></radialGradient></defs>'+body+'</svg>'}
+function openDom(){if(!DI)return openDomM();const D=$('dom');D.innerHTML='<h2>🤔 잡종 1대(RrYy)는 어떤 완두콩일까?</h2><p class="sub"><b class="R">R</b>(둥근)과 <b class="r">r</b>(주름진), <b class="Y">Y</b>(황색)와 <b class="y">y</b>(녹색)을 모두 가진 잡종 1대의 모습은?</p><div class="opts four"><button data-a="1">'+peaSVG(0,0)+'<span>둥글고 황색</span></button><button data-a="0">'+peaSVG(0,1)+'<span>둥글고 녹색</span></button><button data-a="0">'+peaSVG(1,0)+'<span>주름지고 황색</span></button><button data-a="0">'+peaSVG(1,1)+'<span>주름지고 녹색</span></button></div><div id="dans"></div>';
+D.querySelectorAll('.opts button').forEach(b=>b.onclick=()=>{if(D.dataset.done)return;D.dataset.done=1;const c=b.dataset.a=='1';setTimeout(()=>bigPop('우열의 법칙 확인!','잡종 1대에는 우성 형질만 나타나요'),400);b.classList.add(c?'ok':'no');D.querySelector('[data-a="1"]').classList.add('ok');snd(c?880:160,.35,c?'sine':'sawtooth',.12);
+$('dans').innerHTML='<div class="verdict">'+(c?'⭕ 정답! 잡종 1대는 <b>둥글고 황색</b>이에요.':'❌ 아쉬워요! 정답은 <b>둥글고 황색</b>이에요.')+'</div><div class="law"><div class="lt">📘 우열의 법칙 (복습)</div><p>두 형질 모두 잡종 1대에서는 <b>우성 형질만</b> 나타나요.</p><div class="dr"><div><b class="R">R</b> 둥근 &gt; <b class="r">r</b> 주름진<br><em>둥근 = 우성</em></div><div><b class="Y">Y</b> 황색 &gt; <b class="y">y</b> 녹색<br><em>황색 = 우성</em></div></div><p>열성 유전자 <b class="r">r</b>, <b class="y">y</b>는 숨어 있어요.<br>👉 잡종 2대에서는 두 형질이 <b>어떻게 조합</b>되어 나타날까요?</p></div><button id="dgo">🫛 잡종 1대 완두콩 보기</button>';
+$('dgo').onclick=()=>{D.style.display='none';cross.q=2};setTimeout(()=>$('dans').scrollIntoView({behavior:'smooth',block:'start'}),150)});
+delete D.dataset.done;D.style.display='flex';D.scrollTop=0}
+function Xs(x,y,l,col,n,a,hor,k){g.globalAlpha=a;g.fillStyle=col;const P=Math.PI,w=Math.max(3,l*.14);(hor?[[P+.42,1],[P-.42,1],[.42,0],[-.42,0]]:[[-P/2-.42,1],[-P/2+.42,1],[P/2-.42,0],[P/2+.42,0]]).forEach(q=>arm(x,y,q[0],l*.5,w));g.fillStyle='#fff';g.beginPath();g.arc(x,y,w*.55,0,7);g.fill();
+if(n)(hor?[[P+.42],[P-.42]]:[[-P/2-.42],[-P/2+.42]]).forEach(q=>[...n].forEach((ch,ii)=>{const d=n.length>1?.3:.32,an=ii?-q[0]:q[0];badge0(x+Math.cos(an)*l*d,y+Math.sin(an)*l*d,ch,a,Math.max(6,k*.085))}))}
+function _rodX(){}
+function rod(x,y,l,col,n,a,k){g.globalAlpha=a;g.strokeStyle=col;g.lineWidth=Math.max(3,l*.16);g.lineCap='round';g.beginPath();g.moveTo(x-l/2,y);g.lineTo(x+l/2,y);g.stroke();g.fillStyle='#fff';g.beginPath();g.arc(x,y,2.2,0,7);g.fill();if(n)[...n].forEach((ch,ii)=>badge0(x-l*(n.length>1?(ii?.1:.34):.22),y,ch,a,Math.max(5,k*.075)))}
+const FC='rgba(245,197,24,.08)',SC='#f5c518';
+function pinch(x,y,o,a,b,vt){const P=Math.PI;g.globalAlpha=1;g.beginPath();if(vt){g.ellipse(x,y-o,b,a,0,0,7);g.moveTo(x+b,y+o);g.ellipse(x,y+o,b,a,0,0,7)}else{g.ellipse(x-o,y,a,b,0,0,7);g.moveTo(x+o+a,y);g.ellipse(x+o,y,a,b,0,0,7)}g.fillStyle=FC;g.fill();
+g.strokeStyle=SC;g.lineWidth=3;if(vt){const t0=Math.asin(Math.min(1,o/a));g.beginPath();g.ellipse(x,y-o,b,a,0,P-t0,2*P+t0);g.stroke();g.beginPath();g.ellipse(x,y+o,b,a,0,-t0,P+t0);g.stroke()}
+else{const f=Math.acos(Math.min(1,o/a));g.beginPath();g.ellipse(x-o,y,a,b,0,f,2*P-f);g.stroke();g.beginPath();g.ellipse(x+o,y,a,b,0,-(P-f),P-f);g.stroke()}}
+function gcent(x0,y0,r,sp=1){const o=[];for(const d of[-1,1])for(const v of[-1,1])o.push([x0+d*.45*r*sp,y0+v*.4*r*(1+.5*(sp-1))]);return o}
+function gamete(x,y,r,cl,cs,al,a,glow,al2=''){if(glow){g.globalAlpha=a*.5;g.fillStyle=glow;g.beginPath();g.arc(x,y,r*.5,0,7);g.fill()}ell(x,y,r*.42,r*.34,FC,SC,0,a);rod(x-r*.1,y-r*.06,r*.3,cl,al,a,r);rod(x+r*.16,y+r*.1,r*.15,cs,al2,a,r)}
+function pcell(x0,y0,r,t,cl,cs,al,al2){const tA=ez(cl01(t/.2)),tB=ez(cl01((t-.25)/.2)),tC1=ez(cl01((t-.5)/.1)),tC2=ez(cl01((t-.62)/.14)),tD=ez(cl01((t-.8)/.15));
+if(t>=.8){gcent(x0,y0,r,1+.3*tD).forEach(p=>gamete(p[0],p[1],r,cl,cs,al,1,0,al2));if(tD>.3)gcent(x0,y0,r,1.3).forEach(p=>lbl(p[0],p[1]+r*.42,al+al2,Math.max(12,r*.16)));return}
+// cells
+if(t<.5){const o=.45*r*tB;pinch(x0,y0,o,r-1.24*o,r*.85*(1-.06*tB),0)}
+else for(const d of[-1,1]){const o=.4*r*tC2;pinch(x0+d*.45*r,y0,o,r*.8-o,r*.44,1)}
+// chromosomes
+const lens=[r*.56,r*.28];
+for(const h of[-1,1])for(let z=0;z<2;z++){const col=z?cs:cl,n=z?al2:al,st=[[x0+(h<0?-.45:.35)*r,y0+(z?.35:-.25)*r*(h<0?1:-1)],[0,0]][0],bx=x0+h*.1*r,by=y0+(z?.3:-.28)*r;
+let x=st[0]+(bx-st[0])*tA,y=st[1]+(by-st[1])*tA;x+=h*.45*r*tB;
+if(t<.5){Xs(x,y,lens[z],col,n,1,0,r);continue}
+const dx=x0+h*.45*r,tx=dx+(z?.16:-.1)*r,ty=y0+(z?.1:-.06)*r;x=x+(tx-x)*tC1;y=y+(ty-y)*tC1;
+if(tC2==0)Xs(x,y,lens[z]*(1-.2*tC1),col,n,1,tC1>.5,r);else for(const v of[-1,1])rod(x,y+v*.4*r*tC2,z?r*.15:r*.3,col,n,1,r)}}
+function pcell2(x0,y0,r,t,LA,SA){const tA=ez(cl01(t/.2)),tB=ez(cl01((t-.25)/.2)),tC1=ez(cl01((t-.5)/.1)),tC2=ez(cl01((t-.62)/.14)),tD=ez(cl01((t-.8)/.15));
+if(t>=.8){gcent(x0,y0,r,1+.3*tD).forEach((p,i)=>{const q=i<2?0:1;gamete(p[0],p[1],r,LA[q].c,SA[q].c,LA[q].a,1,0,SA[q].a)});if(tD>.3)gcent(x0,y0,r,1.3).forEach((p,i)=>{const q=i<2?0:1;lbl(p[0],p[1]+r*.42,LA[q].a+SA[q].a,Math.max(12,r*.16))});return}
+// cells
+if(t<.5){const o=.45*r*tB;pinch(x0,y0,o,r-1.24*o,r*.85*(1-.06*tB),0)}
+else for(const d of[-1,1]){const o=.4*r*tC2;pinch(x0+d*.45*r,y0,o,r*.8-o,r*.44,1)}
+// chromosomes
+const lens=[r*.56,r*.28];
+for(const h of[-1,1])for(let z=0;z<2;z++){const hi=h<0?0:1,col=z?SA[hi].c:LA[hi].c,n=z?SA[hi].a:LA[hi].a,st=[[x0+(h<0?-.45:.35)*r,y0+(z?.35:-.25)*r*(h<0?1:-1)],[0,0]][0],bx=x0+h*.1*r,by=y0+(z?.3:-.28)*r;
+let x=st[0]+(bx-st[0])*tA,y=st[1]+(by-st[1])*tA;x+=h*.45*r*tB;
+if(t<.5){Xs(x,y,lens[z],col,n,1,0,r);continue}
+const dx=x0+h*.45*r,tx=dx+(z?.16:-.1)*r,ty=y0+(z?.1:-.06)*r;x=x+(tx-x)*tC1;y=y+(ty-y)*tC1;
+if(tC2==0)Xs(x,y,lens[z]*(1-.2*tC1),col,n,1,tC1>.5,r);else for(const v of[-1,1])rod(x,y+v*.4*r*tC2,z?r*.15:r*.3,col,n,1,r)}}
+let f1s=0,arrA=1;
+$('b9').onclick=()=>chooseArr(1);$('b10').onclick=()=>chooseArr(2);
+function chooseArr(a){if(f1s!=0)return;arrA=a;f1s=1;snd(660,.25,'sine',.12,990);bigPop(a==1?'배열 ① 선택!':'배열 ② 선택!',a==1?'R과 Y가 같은 쪽으로 가요':'R과 y가 같은 쪽으로 가요')}
+$('b11').onclick=()=>{if(f1s!=2)return;f1s=3;fm=.2;fmh=0;snd(500,.3,'triangle',.1,800)};
+function f1mDI(dt){const r=Math.min(W*.3,H*.19),LA=[{c:'#ef4444',a:'R'},{c:'#3b82f6',a:'r'}],Y={c:'#fca5a5',a:'Y'},y={c:'#93c5fd',a:'y'},SA=a=>a==1?[Y,y]:[y,Y],cur=f1s<=2?arrA:3-arrA;bgCell(1);
+if(f1s==0){if(dt<0){fm=cl01(fm+dt/26)}else fm=Math.min(.2,fm+dt/26);const fl=Math.floor(pt*1.2)%2;pcell2(W/2,H*.48,r,fm,LA,SA(fm>=.2?1+fl:1));lbl(W/2,H*.48-r-24,'F₁ 꽃밥 속 생식모세포 RrYy',14);
+cap(fm<.2?'① 감수 1분열 전기~중기: 두 쌍의 상동염색체가 짝을 지어 적도면으로 모여요':'🤔 짧은 염색체 쌍(Y/y)은 어느 방향으로 배열될까요? 아래에서 골라 보세요!',H*.08,16)}
+else if(f1s==1||f1s==3){if(dt<0&&fmh>0)fmh=Math.max(0,fmh+dt);else if(fm<1||dt<0)fm=cl01(fm+dt/26);else fmh+=dt;
+if(dt<0&&fm<=.2){if(f1s==3){f1s=2;fm=1;fmh=0}else if(fm<.2)f1s=0}
+pcell2(W/2,H*.48,r,Math.max(fm,0),LA,SA(cur));lbl(W/2,H*.48-r-24,(cur==1?'배열 ① (R–Y 같은 쪽)':'배열 ② (R–y 같은 쪽)'),14);
+cap(fm<.5?'② 감수 1분열 후기: 두 쌍의 상동염색체가 서로 영향을 주지 않고 따로 분리돼요':fm<.8?'③ 감수 2분열: DNA 복제 없이 염색분체가 분리돼요':'④ 생식세포 완성! '+(cur==1?'RY 2개, ry 2개':'Ry 2개, rY 2개'),H*.08,16);
+if(fmh>2.5){if(f1s==1){f1s=2;fmh=0}else{f1s=4;fmh=0}}}
+else if(f1s==2){if(dt<0){f1s=1;fm=.999;fmh=0}pcell2(W/2,H*.48,r,1,LA,SA(arrA));lbl(W/2,H*.48-r-24,(arrA==1?'배열 ① (R–Y 같은 쪽)':'배열 ② (R–y 같은 쪽)'),14);
+cap('이 세포에서는 '+(arrA==1?'RY, ry':'Ry, rY')+' 두 종류만 만들어졌어요. 그런데 짧은 염색체 쌍이 반대로 배열되면 어떻게 될까요?',H*.08,16)}
+else{const r2=Math.min(W*.2,H*.17);if(dt<0&&fmh<=0){f1s=3;fm=.999;fmh=0}else fmh=Math.max(0,fmh+dt);[[W*.27,1],[W*.73,2]].forEach(([x,a])=>{pcell2(x,H*.48,r2,1,LA,SA(a));lbl(x,H*.48-r2*1.2-20,a==1?'배열 ① (R–Y)':'배열 ② (R–y)',13)});
+lbl(W/2,H*.8,'RY : Ry : rY : ry = 1 : 1 : 1 : 1',16);cap('두 배열은 같은 확률로 일어나요 → 생식세포 4종류가 1 : 1 : 1 : 1로 만들어져요 (독립의 법칙)',H*.08,16);
+if(fmh>5){ph='flower';fl=0;snd(400,.8,'sine',.1,200)}}
+$('b9').style.display=$('b10').style.display=(f1s==0&&fm>=.2)?'inline-block':'none';$('b11').style.display=f1s==2?'inline-block':'none'}
+let lk=0;
+function link(dt){lk=cl01(lk+dt/48);bgCell(1);const LA=[{c:'#ef4444',a:'RY'},{c:'#3b82f6',a:'ry'}],SA=[{c:'#fca5a5',a:''},{c:'#93c5fd',a:''}];
+if(lk<.1){const a=ez(cl01(lk/.03)),y0=H*.46,sc=Math.min(W*.4,260);g.globalAlpha=1;
+[[W*.27,0],[W*.73,1]].forEach(([x,k])=>{g.globalAlpha=a;ell(x,y0,sc*.5,sc*.55,FC,SC,0,a);lbl(x,y0-sc*.55-20,k?'완전 연관 (같은 염색체)':'독립 (서로 다른 염색체)',13);
+const kk=sc*.75;if(!k){rod(x,y0-sc*.3,sc*.55,'#ef4444','R',a,kk);rod(x,y0-sc*.12,sc*.55,'#3b82f6','r',a,kk);rod(x,y0+sc*.12,sc*.3,'#fca5a5','Y',a,kk);rod(x,y0+sc*.3,sc*.3,'#93c5fd','y',a,kk)}
+else{rod(x,y0-sc*.22,sc*.7,'#ef4444','RY',a,kk);rod(x,y0-sc*.02,sc*.7,'#3b82f6','ry',a,kk);rod(x,y0+sc*.2,sc*.3,'#fca5a5','',a,kk);rod(x,y0+sc*.34,sc*.3,'#93c5fd','',a,kk)}});
+cap('🔗 만약 R과 Y가 같은 염색체에 있다면? R과 Y, r과 y가 한 염색체에 붙어 있어 함께 움직여요 (완전 연관)',H*.08,16)}
+else if(lk<.55){const t=cl01((lk-.1)/.42),r=Math.min(W*.3,H*.19);pcell2(W/2,H*.48,r,t,LA,SA);lbl(W/2,H*.48-r-24,'F₁ RrYy (R–Y 연관)',14);
+cap(t<.23?'① 감수 1분열 중기: RY가 있는 염색체와 ry가 있는 상동염색체가 짝을 지어 배열':t<.5?'② 감수 1분열 후기: 상동염색체가 분리 – R과 Y는 한 염색체에 있어 늘 함께 가요':t<.8?'③ 감수 2분열: 염색분체 분리':'④ 생식세포는 RY : ry = 1 : 1 뿐! Ry, rY는 만들어지지 않아요',H*.08,16)}
+else if(lk<.85){const t=cl01((lk-.55)/.28),cs=Math.min(W*.24,H*.15),ox=W/2-cs*1.5,oy=H*.3,T=['RY','ry'],GP=[['RRYY',0],['RrYy',0],['RrYy',0],['rryy',3]];
+g.globalAlpha=1;g.fillStyle='#1a1f29';g.strokeStyle='#2f3848';g.lineWidth=1;
+T.forEach((q,i)=>{gem(ox+cs*(1.5+i),oy+cs*.5,cs*.26,q,'#fef9c3','#eab308',1);gem(ox+cs*.5,oy+cs*(1.5+i),cs*.26,q,'#fce7f3','#ec4899',1)});
+g.globalAlpha=1;g.fillStyle='#cbd5e1';g.font='600 12px sans-serif';g.textAlign='center';g.fillText('꽃가루 →',ox+cs*.5,oy+cs*.35);g.fillText('난세포 ↓',ox+cs*.5,oy+cs*.7);
+GP.forEach((q,k)=>{const cx2=ox+cs*(1.5+(k%2)),cy3=oy+cs*(1.5+(k>>1)),f=cl01((t-.1-k*.18)/.12);g.globalAlpha=1;g.fillStyle='#232a37';g.strokeStyle=f>0?'#f5c518':'#3b4658';g.lineWidth=2;g.beginPath();g.roundRect?g.roundRect(cx2-cs*.46,cy3-cs*.46,cs*.92,cs*.92,10):g.rect(cx2-cs*.46,cy3-cs*.46,cs*.92,cs*.92);g.fill();g.stroke();
+if(f>0){peaDraw(cx2,cy3-cs*.1,cs*.2*ez(f),q[1]==3,f,q[1]==3);g.globalAlpha=f;ctext(q[0],cx2,cy3+cs*.28,cs*.17)}});
+cap('F₁(RrYy) 자가수분: RY와 ry 두 종류의 생식세포만 만나요',H*.08,16);
+if(t>.85)lbl(W/2,oy+cs*3.35,'둥근·황색 3 : 주름진·녹색 1',16)}
+else{const a=ez(cl01((lk-.85)/.06)),y1=H*.34,y2=H*.6,bw=Math.min(W*.2,110);g.globalAlpha=a;
+const row=(y,title,vals,col)=>{lbl(W/2,y-bw*.62,title,14);[0,1,2,3].forEach(i=>{const x=W/2+(i-1.5)*bw;g.globalAlpha=a;g.fillStyle='#1a1f29';g.strokeStyle=col;g.lineWidth=2;g.beginPath();g.roundRect?g.roundRect(x-bw*.45,y-bw*.4,bw*.9,bw*.95,12):g.rect(x-bw*.45,y-bw*.4,bw*.9,bw*.95);g.fill();g.stroke();peaDraw(x,y-bw*.08,bw*.2,i>1,vals[i]?a:a*.25,i%2);g.globalAlpha=a;g.fillStyle=vals[i]?'#ffe37a':'#5b6b8c';g.font='900 '+bw*.26+'px sans-serif';g.textAlign='center';g.fillText(vals[i],x,y+bw*.42)})};
+row(y1,'독립의 법칙 (R/r, Y/y가 다른 염색체)',[9,3,3,1],'#f5c518');row(y2,'완전 연관 (R–Y가 같은 염색체)',[3,0,0,1],'#8ecae6');
+cap('같은 염색체에 있는 유전자는 함께 유전돼요 → 독립의 법칙이 성립하지 않아요!',H*.08,16);
+if(lk>=1&&!link.d){link.d=1;bigPop('완전 연관 확인!','R–Y가 함께 유전 → 둥근황색 : 주름진녹색 = 3 : 1');$('b2').textContent='↩ 직접 해보기 결과로 돌아가기';$('b2').style.display='inline-block'}}
+if(lk<1)link.d=0}
+function f1m(dt){if(DI){f1mDI(dt);return}if(dt<0&&fmh>0)fmh=Math.max(0,fmh+dt);else if(fm<1||dt<0)fm=cl01(fm+dt/26);else fmh+=dt;bgCell(1);const LA=[{c:'#ef4444',a:'R'},{c:'#3b82f6',a:'r'}];
+if(!DI){const r=Math.min(W*.3,H*.19);pcell2(W/2,H*.48,r,fm,LA,[{c:'#fca5a5',a:''},{c:'#93c5fd',a:''}]);lbl(W/2,H*.48-r-24,'F₁ 꽃밥 속 생식모세포 Rr',14)}
+else{const r=Math.min(W*.2,H*.17),Y={c:'#fca5a5',a:'Y'},y={c:'#93c5fd',a:'y'};[[W*.27,0],[W*.73,1]].forEach(([x,k])=>{pcell2(x,H*.48,r,fm,LA,k?[y,Y]:[Y,y]);lbl(x,H*.48-r-24,k?'배열 ② (R–y 같은 쪽)':'배열 ① (R–Y 같은 쪽)',12)})}
+cap(DI?(fm<.23?'① 감수 1분열 중기: 두 쌍의 상동염색체가 적도면에 배열 – 짧은 쌍(Y/y)의 방향은 두 가지가 가능해요':fm<.5?'② 감수 1분열 후기: 두 쌍이 서로 영향을 주지 않고 독립적으로 분리돼요':fm<.8?'③ 감수 2분열: DNA 복제 없이 염색분체가 분리돼요':'④ 배열 ① → RY, ry · 배열 ② → Ry, rY (두 배열은 같은 확률) → 1 : 1 : 1 : 1')
+:(fm<.23?'① 감수 1분열 중기: R이 있는 염색체와 r이 있는 상동염색체가 짝을 지어 적도면에 배열':fm<.5?'② 감수 1분열 후기: 상동염색체가 분리 → R과 r이 서로 다른 세포로 나뉘어요':fm<.8?'③ 감수 2분열: DNA 복제 없이 염색분체가 분리돼요':'④ 생식세포 완성! R 2개 : r 2개 → R : r = 1 : 1'),H*.08,16);
+if(fmh>3){ph='flower';fl=0;snd(400,.8,'sine',.1,200)}}
+function pmeio(dt){pm=cl01(pm+dt/26);bgCell(1);const{r,L,Rt}=PP();pcell(L[0],L[1],r,pm,'#ef4444','#fca5a5','R',DI?'Y':'');pcell(Rt[0],Rt[1],r,pm,'#3b82f6','#93c5fd','r',DI?'y':'');
+if(pm<.8){lbl(L[0],L[1]-r-18,DI?'둥근·황색 RRYY':'둥근 완두 RR',13);lbl(Rt[0],Rt[1]-r-18,DI?'주름진·녹색 rryy':'주름진 완두 rr',13)}
+cap(pm<.23?'① 감수 1분열 전기·중기: 상동염색체가 짝을 지어 적도면에 배열':pm<.5?'② 감수 1분열 후기·말기: 상동염색체 분리':pm<.8?'③ 감수 2분열: DNA 복제 없이 염색분체 분리':(DI?'④ 생식세포 완성! RRYY는 모두 RY, rryy는 모두 ry':'④ 생식세포 완성! RR은 모두 R, rr은 모두 r'),H*.1);
+if(pm>=1){ph='pzout';zq=0}}
+function seed(){bgCell(1);const z=Math.min(W,H)*.17,Cx=W/2,Cy=H*.46;peaDraw(Cx,Cy,z*(1+.03*Math.sin(pt*4)),0);lbl(Cx,Cy+z+22,DI?'F₁ 완두콩 RrYy → 둥글고 황색':'F₁ 완두콩 Rr → 둥근 모양',17);
+cap((DI?'R과 Y가 우성이라 RrYy는 둥글고 황색!':'R이 우성이라 Rr은 둥근 모양!')+' 완두콩을 눌러 밭에 심어 보세요 👆',H*.1)}
+function plant(dt){pl=cl01(pl+dt/3);const k=ez(pl),z=Math.min(W,H)*.17,y=H*.46+(H*.85-H*.46)*k;g.globalAlpha=k;g.fillStyle='#4a3320';g.fillRect(0,H*.85,W,H);peaDraw(W/2,y,z*(1-k)+14*k,0);cap('🌱 F₁ 완두콩을 밭에 심어요',H*.1);if(pl>=1){ph='sprout';sp=0;snd(300,.6,'triangle',.1,600)}}
+$('b6').onclick=()=>{ph='pgrow';gt=0;$('b6').style.display='none';$('b7').style.display='inline-block';snd(400,.4,'triangle',.1,800)};
+$('b7').onclick=()=>{cv.style.filter='';ph='cross';xt=Math.max(xt,.8);$('b7').style.display='none'};
+$('again').onclick=()=>restart();
+const PEA_R='<svg viewBox="-50 -50 100 100"><defs><radialGradient id="pg" cx="35%" cy="35%"><stop offset="0" stop-color="#fff59d"/><stop offset=".55" stop-color="#f5c518"/><stop offset="1" stop-color="#a67c00"/></radialGradient></defs><circle r="42" fill="url(#pg)"/><ellipse cx="-16" cy="-19" rx="9" ry="4" fill="rgba(255,255,255,.4)" transform="rotate(-35 -16 -19)"/></svg>';
+const PEA_W=(()=>{let d='';for(let k=0;k<=72;k++){const t=k/72*6.283,rr=42*(1+.07*Math.sin(7*t+1)+.04*Math.sin(13*t));d+=(k?'L':'M')+(Math.cos(t)*rr).toFixed(1)+' '+(Math.sin(t)*rr*.92).toFixed(1)}return '<svg viewBox="-50 -50 100 100"><defs><radialGradient id="pg2" cx="35%" cy="35%"><stop offset="0" stop-color="#fff59d"/><stop offset=".55" stop-color="#f5c518"/><stop offset="1" stop-color="#a67c00"/></radialGradient></defs><path d="'+d+'Z" fill="url(#pg2)"/><g fill="none" stroke="rgba(120,80,0,.6)" stroke-width="2.5" stroke-linecap="round"><path d="M-30 -20 q10 -12 22 -4"/><path d="M5 -25 q12 5 14 18"/><path d="M-18 12 q10 10 22 2"/><path d="M20 12 q4 10 -4 18"/></g></svg>'})();
+function gl(t){return[...t].map(c=>'<span class="'+c+'">'+c+'</span>').join('')}
+function comb(a,b){const o=(x,y,U)=>x==U?x+y:y==U?y+x:x+y;return o(a[0],b[0],'R')+o(a[1],b[1],'Y')}
+let filled=0;
+function openPun(){const G=$('grid');filled=0;$('res').innerHTML='';$('again').style.display='none';$('fillall').style.display='inline-block';
+const hd=(a,t,c)=>'<div class="hd"><div class="gm" style="border-color:'+c+'">'+gl(a)+'</div><span>'+t+'</span></div>';
+let h='<div class="hd"><span>♀ 난세포↓<br>♂ 꽃가루→</span></div>'+GA.map(a=>hd(a,'꽃가루','#facc15')).join('');
+GA.forEach(e=>{h+=hd(e,'난세포','#f9a8d4');GA.forEach(p=>{h+='<div class="cellq" data-g="'+comb(p,e)+'">?</div>'})});G.innerHTML=h;
+G.querySelectorAll('.cellq').forEach(el=>el.onclick=()=>fillCell(el));$('fillall').onclick=()=>{let k=0;G.querySelectorAll('.cellq').forEach(el=>{setTimeout(()=>fillCell(el),k++*90)})};
+$('pun').style.display='flex';$('pun').scrollTop=0}
+function fillCell(el){if(el.classList.contains('celld'))return;const gt=el.dataset.g,wr=gt[1]=='r'&&gt[0]=='r',gn=gt[3]=='y'&&gt[2]=='y';el.className='celld';el.dataset.p=(wr?2:0)+(gn?1:0);el.innerHTML=peaSVG(wr,gn)+'<div>'+gl(gt)+'</div>';snd(500+(wr?0:200)+(gn?0:100),.15,'sine',.1);if(++filled==16){$('fillall').style.display='none';setTimeout(result,500)}}
+function result(){ok();const c=[0,0,0,0];$('grid').querySelectorAll('.celld').forEach(el=>c[+el.dataset.p]++);
+const nm=['둥글고 황색','둥글고 녹색','주름지고 황색','주름지고 녹색'];
+$('res').innerHTML='<div class="box"><div>잡종 2대 표현형 비</div><div class="ph4">'+[0,1,2,3].map(i=>'<div>'+peaSVG(i>1,i%2)+'<br>'+nm[i]+'<b>'+c[i]+'</b></div>').join('')+'</div><div class="big">9 : 3 : 3 : 1</div><div style="margin-top:8px">모양만 보면 둥근 '+(c[0]+c[1])+' : 주름진 '+(c[2]+c[3])+' = <b style="color:#ffe37a">3 : 1</b><br>색만 보면 황색 '+(c[0]+c[2])+' : 녹색 '+(c[1]+c[3])+' = <b style="color:#ffe37a">3 : 1</b></div></div>'+
+'<div class="law" style="margin-top:8px"><div class="lt">📘 독립의 법칙</div><p>두 쌍의 대립유전자 <b class="R">R</b>/<b class="r">r</b>와 <b class="Y">Y</b>/<b class="y">y</b>는 <b>서로 다른 상동염색체</b>에 있어요. 감수 1분열 중기에 두 쌍의 상동염색체가 <b>서로 영향을 주지 않고 독립적으로 배열</b>되어 분리되기 때문에, 생식세포가 RY : Ry : rY : ry = 1 : 1 : 1 : 1로 만들어져요.</p><p>그래서 각 형질은 따로따로 3 : 1로 유전되고, 합치면<br><b style="color:#ffe37a">(3 : 1) × (3 : 1) = 9 : 3 : 3 : 1</b></p></div>'+
+'<div class="box qz"><b>🧐 확인 문제</b><br>F₁(RrYy)에서 생식세포 4종류가 1 : 1 : 1 : 1로 만들어지는 까닭은?<br><button data-a="0">DNA가 두 번 복제되기 때문</button><button data-a="1">두 쌍의 상동염색체가 감수 1분열 중기에 독립적으로 배열되기 때문</button><button data-a="0">감수 2분열에서 상동염색체가 분리되기 때문</button><div id="qf" style="margin-top:6px"></div></div>';
+$('res').querySelectorAll('.qz button').forEach(b=>b.onclick=()=>{const k=b.dataset.a=='1';b.className=k?'ok':'no';$('qf').innerHTML=k?'✅ 정답! 긴 염색체 쌍(R/r)과 짧은 염색체 쌍(Y/y)이 어느 방향으로 배열될지는 서로 독립적이에요. 두 배열이 같은 확률로 일어나요.':'❌ 다시 생각해 보세요. 앞에서 🔄 버튼으로 바꿔 본 것이 무엇이었나요?';snd(k?880:160,.3,k?'sine':'sawtooth',.1)});
+$('again').style.display='inline-block';setTimeout(()=>$('res').scrollIntoView({behavior:'smooth',block:'start'}),200)}
+function comb(a,b){const o=(x,y,U)=>x==U?x+y:y==U?y+x:x+y;return o(a[0],b[0],'R')+(a.length>1?o(a[1],b[1],'Y'):'')}
+function phIdx(g2){const wr=g2[0]=='r'&&g2[1]=='r';if(!DI)return wr?1:0;const gn=g2[2]=='y'&&g2[3]=='y';return(wr?2:0)+(gn?1:0)}
+const PHN=()=>DI?['둥글고 황색','둥글고 녹색','주름지고 황색','주름지고 녹색']:['둥근 모양','주름진 모양'];
+let cases=[],ci=0,typed='',tries=0,cstate='',cnts=[];
+function openCase(){const T=DI?['RY','Ry','rY','ry']:['R','r'];cases=[];T.forEach(e=>T.forEach(p=>cases.push({p,e,g:comb(p,e)})));ci=0;cnts=PHN().map(()=>0);
+$('ctitle').innerHTML='🌼 F₁('+gl(F1())+') 자가수분 – 수정의 경우의 수';$('cres').innerHTML='';$('auto').style.display='none';['stage','qtxt','inp','phs'].forEach(i=>$(i).style.display='');
+const n=T.length+1,G=$('cgrid');G.style.gridTemplateColumns='repeat('+n+','+(DI?'clamp(54px,17vw,96px)':'clamp(70px,24vw,110px)')+')';
+const hd=(a,t,c)=>'<div class="hd"><div class="gm" style="border-color:'+c+'">'+gl(a)+'</div><span>'+t+'</span></div>';
+let h='<div class="hd"><span>♀ 난세포↓<br>♂ 꽃가루→</span></div>'+T.map(a=>hd(a,'꽃가루','#facc15')).join('');let k=0;T.forEach(e=>{h+=hd(e,'난세포','#f9a8d4');T.forEach(()=>{h+='<div class="cc" id="cc'+(k++)+'">?</div>'})});G.innerHTML=h;
+$('bins').innerHTML=PHN().map((nm,i)=>'<div class="bin" id="bin'+i+'">'+peaSVG(DI?i>1:i==1,DI&&i%2).replace('<svg','<svg style="width:30px"')+'<div class="bn">'+nm+'</div><div class="bc" id="bc'+i+'">0</div><div class="bi" id="bi'+i+'"></div></div>').join('');
+$('keys').innerHTML=(DI?['R','r','Y','y']:['R','r']).map(c=>'<button data-k="'+c+'">'+gl(c)+'</button>').join('')+'<button class="kb" data-k="del">⌫</button>';
+$('keys').querySelectorAll('button').forEach(b=>b.onclick=()=>key(b.dataset.k));
+$('phs').innerHTML=PHN().map((nm,i)=>'<button data-i="'+i+'">'+peaSVG(DI?i>1:i==1,DI&&i%2)+nm+'</button>').join('');$('phs').querySelectorAll('button').forEach(b=>b.onclick=()=>pick(+b.dataset.i,b));
+$('auto').onclick=autoFill;$('case').style.display='flex';$('case').scrollTop=0;nextCase()}
+function nextCase(){if(ci>=cases.length)return finishCase();const c=cases[ci],st=$('stage');document.querySelectorAll('.cc.cur').forEach(e=>e.classList.remove('cur'));$('cc'+ci).classList.add('cur');
+st.className='';$('spol').innerHTML=gl(c.p);$('segg').innerHTML=gl(c.e);$('szyg').innerHTML='?';typed='';tries=0;$('gtbox').innerHTML='';$('inp').style.display='';$('inp').style.visibility='hidden';$('phs').style.display='none';$('case').scrollTo({top:0,behavior:'smooth'});
+$('qtxt').innerHTML='<b>'+(ci+1)+' / '+cases.length+'</b> · 꽃가루 '+gl(c.p)+' 과 난세포 '+gl(c.e)+' 가 만나요…';cstate='anim';
+void st.offsetWidth;setTimeout(()=>{st.classList.add('go');snd(300,.6,'sine',.08,600)},150);setTimeout(()=>{st.classList.add('fz');snd(700,.2,'triangle',.1);cstate='gt';$('inp').style.visibility='visible';$('qtxt').innerHTML='✏️ <b>수정란의 유전자형</b>을 써 보세요'},1150)}
+function key(k){if(cstate!='gt')return;const c=cases[ci];if(k=='del'){typed=typed.slice(0,-1)}else if(typed.length<c.g.length)typed+=k;$('gtbox').innerHTML=gl(typed);snd(600,.05,'square',.04);
+if(typed.length==c.g.length){cstate='chk';setTimeout(()=>{if(typed==c.g){snd(880,.2,'sine',.12);$('szyg').innerHTML=gl(c.g);$('qtxt').innerHTML='✅ 맞아요! 이 완두콩은 어떤 <b>형질</b>일까요?';$('inp').style.display='none';$('phs').style.display='';$('phs').querySelectorAll('button').forEach(b=>b.classList.remove('no'));cstate='ph'}
+else{tries++;const same=[...typed].sort().join('')==[...c.g].sort().join('');snd(160,.25,'sawtooth',.08);$('gtbox').classList.add('shake');setTimeout(()=>$('gtbox').classList.remove('shake'),350);
+$('qtxt').innerHTML=(same?'🔤 유전자는 맞아요! 같은 유전자끼리 붙이고, <b>대문자(우성)</b>를 먼저 써요.':'🤔 꽃가루 '+gl(c.p)+' 와 난세포 '+gl(c.e)+' 의 유전자를 <b>하나씩 모두 합쳐</b> 보세요.')+(tries>=2?'<br>정답: <b>'+gl(c.g)+'</b> – 따라 써 보세요':'');
+typed='';setTimeout(()=>{$('gtbox').innerHTML='';cstate='gt'},600)}},250)}}
+function addToBin(i,g2){cnts[i]++;$('bc'+i).textContent=cnts[i];$('bi'+i).insertAdjacentHTML('beforeend',peaSVG(DI?i>1:i==1,DI&&i%2));const b=$('bin'+i);b.classList.add('hit');setTimeout(()=>b.classList.remove('hit'),500)}
+function fillC(k){const c=cases[k],i=phIdx(c.g),el=$('cc'+k);el.className='cc done';el.innerHTML=peaSVG(DI?i>1:i==1,DI&&i%2)+'<div>'+gl(c.g)+'</div>';addToBin(i,c.g)}
+function pick(i,b){if(cstate!='ph')return;const c=cases[ci];if(i==phIdx(c.g)){cstate='done';snd(660,.25,'sine',.12,990);fillC(ci);$('qtxt').innerHTML='🎉 '+PHN()[i]+' 완두콩으로 분류!';ci++;if(DI&&ci>=4&&ci<cases.length)$('auto').style.display='inline-block';setTimeout(nextCase,900)}
+else{b.classList.add('no');snd(160,.25,'sawtooth',.08);$('qtxt').innerHTML='💡 우성 유전자(대문자)가 <b>하나라도 있으면</b> 우성 형질이 나타나요. '+(DI?'R → 둥근, Y → 황색':'R → 둥근')}}
+function autoFill(){$('auto').style.display='none';cstate='auto';let k=0;const rest=[];for(let j=ci;j<cases.length;j++)rest.push(j);rest.forEach(j=>setTimeout(()=>{fillC(j);snd(500+phIdx(cases[j].g)*120,.08,'triangle',.07)},k++*260));setTimeout(()=>{ci=cases.length;finishCase()},k*260+300)}
+function finishCase(){document.querySelectorAll('.cc.cur').forEach(e=>e.classList.remove('cur'));['stage','inp','phs'].forEach(i=>$(i).style.display='none');$('auto').style.display='none';
+$('qtxt').innerHTML='🎊 모든 수정의 경우를 분류했어요!';
+bigPop(DI?'독립의 법칙 확인!':'분리의 법칙 확인!',DI?'둥근황색 : 둥근녹색 : 주름황색 : 주름녹색 = 9 : 3 : 3 : 1':'둥근 : 주름진 = 3 : 1');
+const gc={};cases.forEach(c=>gc[c.g]=(gc[c.g]||0)+1);let h;
+if(!DI){h='<div class="box"><div>유전자형 비 &nbsp;'+gl('RR')+' : '+gl('Rr')+' : '+gl('rr')+'</div><div class="big">'+(gc.RR||0)+' : '+(gc.Rr||0)+' : '+(gc.rr||0)+'</div><div style="margin-top:6px">표현형 비 &nbsp;둥근 : 주름진</div><div class="big">'+cnts[0]+' : '+cnts[1]+'</div></div>'+
+'<div class="law"><div class="lt">📘 분리의 법칙</div><p>F₁(Rr)이 생식세포를 만들 때, 한 쌍의 대립유전자 <b class="R">R</b>과 <b class="r">r</b>은 <b>감수 1분열에서 상동염색체가 분리되면서</b> 서로 다른 생식세포로 나뉘어 들어가요.</p><p>그래서 생식세포가 R : r = 1 : 1로 만들어지고, 자가수분하면 잡종 2대에서 <b style="color:#ffe37a">둥근 : 주름진 = 3 : 1</b>로 나타나요. 숨어 있던 열성 형질(주름진)이 다시 나타났어요!</p></div>'+
+'<div class="box qz"><b>🧐 확인 문제</b><br>R과 r이 서로 다른 생식세포로 나뉘는 시기는?<br><button data-a="0">간기</button><button data-a="1">감수 1분열 후기</button><button data-a="0">감수 2분열 후기</button><div id="qf" style="margin-top:6px"></div></div>'}
+else{h='<div class="box"><div>잡종 2대 표현형 비</div><div class="big">'+cnts.join(' : ')+'</div><div style="margin-top:8px">모양만 보면 둥근 '+(cnts[0]+cnts[1])+' : 주름진 '+(cnts[2]+cnts[3])+' = <b style="color:#ffe37a">3 : 1</b><br>색만 보면 황색 '+(cnts[0]+cnts[2])+' : 녹색 '+(cnts[1]+cnts[3])+' = <b style="color:#ffe37a">3 : 1</b></div></div>'+
+'<div class="law"><div class="lt">📘 독립의 법칙</div><p>두 쌍의 대립유전자 <b class="R">R</b>/<b class="r">r</b>와 <b class="Y">Y</b>/<b class="y">y</b>는 <b>서로 다른 상동염색체</b>에 있어요. 감수 1분열 중기에 두 쌍이 <b>서로 영향을 주지 않고 독립적으로 배열·분리</b>되어 생식세포가 RY : Ry : rY : ry = 1 : 1 : 1 : 1로 만들어져요.</p><p>그래서 각 형질은 따로따로 3 : 1로 유전되고, 합치면<br><b style="color:#ffe37a">(3 : 1) × (3 : 1) = 9 : 3 : 3 : 1</b></p></div>'+
+'<div class="box qz"><b>🧐 확인 문제</b><br>F₁(RrYy)에서 생식세포 4종류가 1 : 1 : 1 : 1로 만들어지는 까닭은?<br><button data-a="0">DNA가 두 번 복제되기 때문</button><button data-a="1">두 쌍의 상동염색체가 감수 1분열 중기에 독립적으로 배열되기 때문</button><button data-a="0">감수 2분열에서 상동염색체가 분리되기 때문</button><div id="qf" style="margin-top:6px"></div></div>'}
+if(DI)h+='<div class="box" style="border-color:#8ecae6"><b style="color:#8ecae6;font-size:18px">🔗 만약 독립의 법칙이 성립하지 않는다면?</b><br>두 유전자가 <b>같은 염색체</b>에 있으면 어떻게 될까요?<br><button id="clink" style="background:#8ecae6;color:#0e1116">▶ 완전 연관 애니메이션 보기</button></div>';
+h+='<div style="margin:10px 0 20px"><button id="cagain">↺ 처음 화면으로</button><button id="cnext">'+(DI?'⬅ 우열·분리의 법칙 알아보기':'➡ 독립의 법칙 알아보기')+'</button></div>';
+$('cres').innerHTML=h;$('cres').querySelectorAll('.qz button').forEach(b=>b.onclick=()=>{const k=b.dataset.a=='1';b.className=k?'ok':'no';$('qf').innerHTML=k?(DI?'✅ 정답! 긴 염색체 쌍(R/r)과 짧은 염색체 쌍(Y/y)이 어느 방향으로 배열될지는 서로 독립적이에요.':'✅ 정답! 감수 1분열 후기에 상동염색체(R이 있는 빨강, r이 있는 파랑)가 분리돼요.'):(DI?'❌ 다시 생각해 보세요. 감수분열 애니메이션의 배열 ①과 ②를 떠올려 보세요.':'❌ 다시 생각해 보세요. R과 r은 서로 다른 상동염색체에 있어요.');snd(k?880:160,.3,k?'sine':'sawtooth',.1)});
+$('cagain').onclick=()=>restart();if(DI)$('clink').onclick=()=>{$('case').style.display='none';ph='link';lk=0;setSpd(1);lastCS=-2};$('cnext').onclick=()=>startMode(DI?'mono':'di');setTimeout(()=>$('bins').scrollIntoView({behavior:'smooth',block:'start'}),3300)}
+function cell4(F,S){const o=ry*.5*cy2,b=ry-o,f=Math.asin(Math.min(1,o/b));for(const d of[-1,1]){const x=cx+d*rx*.5;ell(x,cy-o,rx*.5,b,F,null,0,1);ell(x,cy+o,rx*.5,b,F,null,0,1);ell(x,cy-o,rx*.5,b,0,S,0,1,Math.PI-f,2*Math.PI+f);ell(x,cy+o,rx*.5,b,0,S,0,1,-f,Math.PI+f)}}
+function lbl(x,y,t,sz=20){g.globalAlpha=1;g.font='800 '+sz+'px sans-serif';const w=g.measureText(t).width+18;g.save();g.shadowColor='rgba(0,0,0,.6)';g.shadowBlur=8;g.shadowOffsetY=2;g.fillStyle='#f5c518';g.beginPath();g.roundRect?g.roundRect(x-w/2,y-sz*.75,w,sz*1.5,sz*.75):g.rect(x-w/2,y-sz*.75,w,sz*1.5);g.fill();g.restore();g.fillStyle='#1a1406';g.textAlign='center';g.textBaseline='middle';g.fillText(t,x,y+1);g.textBaseline='alphabetic'}
+function ploidy(){const by=cy+ry+20,s2=rx*.5;
+if(mode=='mit'){if(cyt<.5)lbl(cx,by,'2n=4');else for(const d of[-1,1])lbl(cx+d*s2,by,'2n=4');return}
+const four=cy2>=.5||step==21||step==99,two=!four&&(m2||step==23||(step==17&&cyt>=.5));
+const al=d=>(ch[0].side==d?'R':'r')+(ch[2].side==d?'Y':'y');if(four){const o=ry*.5*Math.min(1,step==20?cy2:1),b=ry-o;for(const d of[-1,1])for(const v of[-1,1])lbl(cx+d*s2,cy+v*(o+b*.5),al(d),16)}else if(two)for(const d of[-1,1])lbl(cx+d*s2,by,al(d));else lbl(cx,by,'RrYy')}
+function cam(k,fx,fy){g.save();g.translate(W/2,H/2);g.scale(k,k);g.translate(-fx,-fy)}
+function fg(){return{fr:Math.min(W,H)*.14,hx:W/2,hy:H*.4}}
+function anth(){const{fr,hx,hy}=fg();return[hx-fr*.55,hy-fr*.25]}
+function ovy(){const{fr,hx,hy}=fg();return[hx,hy+fr*.55]}
+function scene(gp,bl,sc=1){const{fr,hx,hy}=fg(),by=H*.85,sh=(by-hy)*gp,ty=by-sh;g.globalAlpha=1;g.fillStyle='#4a3320';g.fillRect(-W,by,W*3,H);g.fillStyle='#f5c518';g.beginPath();g.ellipse(W/2,by+2,14,9,0,Math.PI,0);g.fill();
+g.strokeStyle='#4ade80';g.lineWidth=6;g.lineCap='round';g.beginPath();g.moveTo(W/2,by);g.quadraticCurveTo(W/2+12,by-sh/2,W/2,ty);g.stroke();
+if(gp>.3)for(const s of[-1,1]){g.fillStyle='#22c55e';g.beginPath();g.ellipse(W/2+s*22,by-sh*.35,22*Math.min(1,gp),9*Math.min(1,gp),-s*.5,0,7);g.fill()}
+flowerAt(hx,hy,fr,bl,sc)}
+function flowerAt(hx,hy,fr,bl,sc=9){if(bl>0){const r=fr*bl;for(let k=0;k<5;k++){const a=k/5*6.283-1.57;g.globalAlpha=1;g.fillStyle=k%2?'#fdf2f8':'#fce7f3';g.strokeStyle='#f9a8d4';g.lineWidth=Math.max(1,r*.02);g.beginPath();g.ellipse(hx+Math.cos(a)*r*.75,hy+Math.sin(a)*r*.75,r*.55,r*.32,a,0,7);g.fill();g.stroke()}
+g.fillStyle='#14532d';g.beginPath();g.arc(hx,hy+r*.05,r*.62,0,7);g.fill();
+g.fillStyle='#65a30d';g.strokeStyle='#1a2e05';g.lineWidth=Math.max(1,r*.025);g.beginPath();g.ellipse(hx,hy+r*.55,r*.26,r*.32,0,0,7);g.fill();g.stroke();
+g.strokeStyle='#a3e635';g.lineWidth=Math.max(1.5,r*.09);g.lineCap='round';g.beginPath();g.moveTo(hx,hy+r*.26);g.lineTo(hx,hy-r*.42);g.stroke();
+g.fillStyle='#d9f99d';g.strokeStyle='#365314';g.lineWidth=Math.max(1,r*.025);g.beginPath();g.ellipse(hx,hy-r*.5,r*.17,r*.1,0,0,7);g.fill();g.stroke();g.fillStyle='#65a30d';for(let q=-2;q<=2;q++){g.beginPath();g.arc(hx+q*r*.06,hy-r*.52,r*.018,0,7);g.fill()}
+for(const s of[-1,1]){g.strokeStyle='#fef3c7';g.lineWidth=Math.max(1,r*.035);g.beginPath();g.moveTo(hx+s*r*.12,hy+r*.3);g.quadraticCurveTo(hx+s*r*.5,hy+r*.15,hx+s*r*.55,hy-r*.18);g.stroke();
+g.fillStyle='#f59e0b';g.strokeStyle='#78350f';g.lineWidth=Math.max(1,r*.025);g.beginPath();g.ellipse(hx+s*r*.55,hy-r*.26,r*.1,r*.15,0,0,7);g.fill();g.stroke();g.strokeStyle='#78350f';g.beginPath();g.moveTo(hx+s*r*.55,hy-r*.4);g.lineTo(hx+s*r*.55,hy-r*.12);g.stroke()}
+if(bl>=1&&sc<4){const f=Math.max(9,13/sc);g.globalAlpha=Math.max(0,1-(sc-1)/3);g.font='700 '+f+'px sans-serif';g.textAlign='left';g.lineWidth=1;
+[['암술머리',hx+r*.2,hy-r*.62,'#d9f99d',hx+r*.12,hy-r*.52],['암술대',hx+r*.95,hy+r*.05,'#a3e635',hx+r*.05,hy-r*.05],['씨방',hx+r*.95,hy+r*.6,'#84cc16',hx+r*.26,hy+r*.55],['꽃밥(수술)',hx-r*1.55,hy-r*.75,'#f59e0b',hx-r*.6,hy-r*.35],['수술대',hx-r*1.4,hy+r*.35,'#fef3c7',hx-r*.45,hy+r*.12]].forEach(t=>{g.strokeStyle=t[3];g.beginPath();g.moveTo(t[1]+(t[1]<hx?g.measureText(t[0]).width:0),t[2]-f*.3);g.lineTo(t[4],t[5]);g.stroke();g.lineWidth=3;g.strokeStyle='#000';g.strokeText(t[0],t[1],t[2]);g.lineWidth=1;g.fillStyle=t[3];g.fillText(t[0],t[1],t[2])});g.globalAlpha=1}}}
+function mini(x,y,l,k){const n=l.length;l.forEach((c,i)=>{const yy=y+(i-(n-1)/2)*7*k,ln=c.len*14*k;g.globalAlpha=1;g.strokeStyle=c.c;g.lineWidth=2.4*k;g.lineCap='round';g.beginPath();g.moveTo(x-ln/2,yy);g.lineTo(x+ln/2,yy);g.stroke();badge(x-ln*.2,yy,c.n,1,3.2*k)})}
+function dot(x,y,r,f,s){g.globalAlpha=1;g.fillStyle=f;g.strokeStyle=s;g.lineWidth=r/9;g.beginPath();g.arc(x,y,r,0,7);g.fill();g.stroke()}
+function fuse(dt){const SC=14-11*ez(Math.min(1,ft/.2));ft=Math.min(1,ft+dt/11);const{fr,hx,hy}=fg(),a=anth(),o=ovy(),k=fr/55,e1=ez(Math.min(1,ft/.2));cv.style.filter=ft<.2?'blur('+(Math.sin(ft/.2*Math.PI)*5).toFixed(1)+'px)':'';
+cam(SC,a[0]+(hx-a[0])*e1,a[1]+(hy+fr*.2-a[1])*e1);scene(1,1,SC);
+const sp1=ch.filter(c=>c.side==-1),eg=ch.filter(c=>c.side==1),t=Math.max(0,Math.min(1,(ft-.2)/.5)),u=Math.max(0,Math.min(1,(ft-.7)/.15));
+if(ft<.85){dot(o[0],o[1],fr*.24,'#fce7f3','#ec4899');mini(o[0],o[1],eg,k);
+const tx=o[0]-fr*.24*(1-u),px=a[0]+(tx-a[0])*t+Math.sin(t*Math.PI)*fr*.5,py=a[1]+(o[1]-a[1])*t;
+g.globalAlpha=.8;g.strokeStyle='#d9f99d';g.lineWidth=1.5*k;g.setLineDash([4*k,3*k]);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(px,py);g.stroke();g.setLineDash([]);
+dot(px,py,fr*.2,'#fef08a','#ca8a04');mini(px,py,sp1,k);if(ft>.2){lbl(px,py-fr*.3,'정핵 n=2',15/SC);lbl(o[0]+fr*.45,o[1]+fr*.1,'난세포 n=2',15/SC)}}
+else{const f=(ft-.85)/.15;dot(o[0],o[1],fr*.3,'#fef3c7','#f59e0b');mini(o[0],o[1],ch,k*.9);g.globalAlpha=1-f;g.strokeStyle='#fff';g.lineWidth=2*k;g.beginPath();g.arc(o[0],o[1],fr*(.3+f*.6),0,7);g.stroke();lbl(o[0],o[1]+fr*.45,'수정란 2n=4',16/SC)}
+g.restore();g.globalAlpha=1;g.fillStyle='#ffe37a';g.font='700 18px sans-serif';g.textAlign='center';
+g.fillText(ft<.2?'꽃 전체로 줌아웃…':ft<.7?'꽃가루(정핵, n=2)가 암술로 이동해요 – 자가수분':ft<.85?'정핵(n) + 난세포(n) 융합!':'🎉 수정 완료! n + n → 2n=4 (씨방 속 자손 세포)',W/2,H*.08);
+if(ft>=1&&!outro.d){outro.d=1;snd(700,.4,'sine',.2,250);setTimeout(()=>snd(900,.3,'sine',.15,400),200);$('b3').style.display='inline-block'}}
+// input
+let sc=null;
+function pts(c){const D=m2?ry*.5:rx*.5;return sep>0?(m2?[[c.x,c.y-sep*D],[c.x,c.y+sep*D]]:mode=='mit'?[[c.x-sep*D,c.y-4],[c.x+sep*D,c.y+4]]:[[c.x+c.side*sep*D,c.y]]):[[c.x,c.y]]}
+function swirl(x,y){let c=null,p=null;ch.forEach(k=>pts(k).forEach(q=>{if(!c&&Math.abs(x-q[0])<EX(k)/2+25&&Math.abs(y-q[1])<45){c=k;p=q}}));
+if(!c||c!=sc){sc=c;la=null;if(!c)return}
+const a=Math.atan2(y-p[1],x-p[0]);if(la!=null&&Math.hypot(x-p[0],y-p[1])>10){let d=a-la;if(d>Math.PI)d-=6.283;if(d<-Math.PI)d+=6.283;const q=Math.abs(d)/(3*Math.PI);c.cd=Math.max(0,Math.min(1,c.cd+(step==2?q:-q)));cond=ch.reduce((u,k)=>u+k.cd,0)/4;if(pt-tk>.09){tk=pt;snd(200+c.cd*500,.09,'sine',.05)}
+if(step==2&&ch.every(k=>k.cd>=1)){setStep(nx());ok()}else if((step==7||step==21)&&ch.every(k=>k.cd<=0))finish()}la=a}
+function finish(){pop(phN(step)+' 완료!','🎉 세포분열 전체 완료',NE[phN(step)]);step=99;gauge();ok();const ty=d=>(ch[0].side==d?'R':'r')+(ch[2].side==d?'Y':'y');myArr=ch[2].side==ch[0].side?1:2;tip('생식세포 완성! '+ty(-1)+' 2개, '+ty(1)+' 2개가 만들어졌어요',7000);$('b8').style.display='none';$('b2').textContent='🔀 다른 배열도 알아보기';$('b2').style.display='inline-block'}
+cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);const x=e.clientX,y=e.clientY;lp=[x,y];la=null;
+if(ph=='seed'){const k=Math.min(W,H)*.17;if(Math.hypot(x-W/2,y-H*.46)<k*1.3){ph='plant';pl=0;snd(250,.5,'sine',.12,120)}return}
+if(ph=='intro'){const{R,wx,wy}=peaGeom();if(Math.hypot(x-wx,y-wy)<R*.22){ph='zin';zt=0;snd(180,.9,'sine',.15,500)}return}
+if(ph!='play')return;
+if([0,4,13,15,22].includes(step)){for(let i=3;i>=0;i--){const c=ch[i];if(hit(c,x,y)){dr={c,ox:c.x-x,oy:c.y-y};c.ok=0;break}}}
+else if(step==3||step==14||step==18){ch.forEach(c=>{if(!c.att&&(step==18?Math.hypot(x-c.x,y-c.y)<34:mode=='mei'?Math.hypot(x-c.x,y-c.y)<LC(c)*.6+10&&(x<(c.x+ch[c.i^1].x)/2)==(c.side<0):Math.hypot(x-c.x,y-c.y)<32)){c.att=1;snd(500,.2,'triangle',.1,800);if(ch.every(k=>k.att)){ok();setTimeout(()=>setStep(nx()),900)}}})}});
+cv.addEventListener('pointermove',e=>{if(!lp)return;const x=e.clientX,y=e.clientY,dx=x-lp[0],dy=y-lp[1];lp=[x,y];if(ph!='play')return;
+if(dr){const c=dr.c,ox=c.x,oy=c.y;c.x=x+dr.ox;c.y=y+dr.oy;clamp(c);c.tx=c.x;c.ty=c.y;if(step==15){const q=ch[c.i^1];q.x+=c.x-ox;q.y+=c.y-oy;clamp(q);q.tx=q.x;q.ty=q.y}}
+else if(step==2||step==7||step==21)swirl(x,y);
+else if(step==5||step==16||step==19){sep=Math.min(1,sep+(step==19?Math.abs(dy)/(ry*.9):Math.abs(dx)/(rx*.9)));if(pt-tk>.08){tk=pt;snd(500-sep*300,.15,'sawtooth',.04,150)}if(sep>=1){setStep(nx());ok()}}
+else if(step==6||step==17||step==20){const v=(Math.abs(dx)+Math.abs(dy))/(ry*2.4);if(step==20)cy2=Math.min(1,cy2+v);else cyt=Math.min(1,cyt+v);if(pt-tk>.1){tk=pt;snd(250+(cyt+cy2)*200,.1,'triangle',.05)}if((step==20?cy2:cyt)>=1){setStep(nx());ok()}}});
+function up(){if(dr){const c=dr.c,i=c.i;dr=null;
+if(step==0){const zy=cy+ZY[c.z]*ry;if(c.z?c.y>cy:c.y<cy){c.tx=cx;c.ty=zy+((i%2)?1:-1)*.12*ry;c.ok=1;snd(440,.12,'triangle',.1);if(ch.every(k=>k.ok)){ok();setTimeout(()=>setStep(1),500)}}else tip(c.z?'이 염색사는 짧은 염색체(Y/y) 구역이에요':'이 염색사는 긴 염색체(R/r) 구역이에요')}
+else if(step==13){const p=ch[i^1];if(Math.abs(c.x-p.x)<.4*rx&&Math.abs(c.y-p.y)<.3*ry){const o={x:(c.x+p.x)/2,y:(c.y+p.y)/2,len:c.len*1.6};clamp(o);[c,p].forEach(q=>{q.tx=o.x+q.side*8;q.ty=o.y;q.ok=q.pr=1});snd(520,.2,'triangle',.12,780);if(ch.every(k=>k.ok)){ok();setTimeout(()=>setStep(nx()),800)}}else tip('짝이 되는 상동 염색체(같은 길이)에 가까이 놓으세요')}
+else if(step==15){const p=ch[i^1];if(Math.abs((c.x+p.x)/2-cx)<.22*rx){[c,p].forEach(q=>{q.tx=cx+q.side*8;q.ty=cy+(q.z?.3:-.3)*ry;q.ok=1});snd(440,.12,'triangle',.1);if(ch.every(k=>k.ok)){ok();setTimeout(()=>setStep(nx()),500)}}else tip('2가염색체를 적도면(가운데)으로!')}
+else if(step==22){if(Math.abs(c.y-cy)<.14*ry){c.ty=cy;c.tx=cx+c.side*rx*.5+(c.z?.2:-.1)*rx;c.ok=1;snd(440,.12,'triangle',.1);if(ch.every(k=>k.ok)){ok();setTimeout(()=>setStep(nx()),500)}}else tip('가로 중앙선(적도면)에 맞추세요')}
+else if(step==4){if(Math.abs(c.x-cx)<.18*rx){c.tx=cx;c.ty=mpos()[i];c.ok=1;snd(440,.12,'triangle',.1);if(ch.every(k=>k.ok)){ok();setTimeout(()=>setStep(5),500)}}else tip('세포 가운데 적도면 쪽으로 더 가까이!')}}
+lp=null;la=null}
+cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+(function ease(){requestAnimationFrame(ease);ch.forEach(c=>{if(dr&&dr.c==c)return;c.x+=(c.tx-c.x)*.18;c.y+=(c.ty-c.y)*.18})})();
+</script></body></html>
