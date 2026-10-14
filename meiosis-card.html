@@ -97,6 +97,14 @@ h1 b{color:var(--accent);font-weight:400}
 .miss svg{width:64px;height:64px;flex:none}
 .miss .a{color:var(--ok);font-weight:900;white-space:nowrap}
 .miss .y{color:var(--bad);white-space:nowrap}
+.recs{list-style:none;margin:8px auto 0;padding:0;max-width:420px;display:flex;flex-direction:column;gap:4px;font-variant-numeric:tabular-nums}
+.recs li{display:grid;grid-template-columns:2.2em 1fr auto;gap:8px;align-items:center;background:#0f1522;border:1px solid var(--line);border-radius:10px;padding:6px 12px;font-size:14px}
+.recs li b{font-family:var(--display);font-weight:400;font-size:18px;color:var(--accent)}
+.recs li span{color:var(--mute);font-size:12.5px}
+.recs li.me{border-color:var(--accent);background:#2a2410}
+.recs .rk{font-weight:900;color:var(--mute)}
+.recs li:first-child .rk{color:var(--accent)}
+.recT{font-weight:900;text-align:center;margin:14px 0 0;font-size:15px}
 .note{font-size:12px;color:var(--mute);text-align:center}
 @media (max-width:560px){.key{grid-template-columns:repeat(2,1fr)}.row.r2{width:100%}}
 @media (prefers-reduced-motion:reduce){#card.in,#card.okk,#card.no,.float{animation:none}}
@@ -113,7 +121,7 @@ h1 b{color:var(--accent);font-weight:400}
 <div id="app">
   <header>
     <h1>생식세포분열 <b>카드 게임</b></h1>
-    <div class="hud"><span class="chip" id="hearts" aria-label="남은 목숨">♥♥♥♥♥</span><span class="chip">점수 <em id="score">0</em></span></div>
+    <div class="hud"><span class="chip" id="hearts" aria-label="남은 목숨">♥♥♥♥♥</span><span class="chip">점수 <em id="score">0</em></span><span class="chip" title="이 기기의 내 최고 점수">🏆 <em id="hb">0</em></span></div>
   </header>
   <p class="guide">카드를 보고 알맞은 시기를 누르세요. 빠를수록 점수가 높아요.<i style="background:var(--mom)"></i>엄마 것<i style="background:var(--dad)"></i>아빠 것 · 긴 것 1번, 짧은 것 2번 (2n=4)</p>
   <div id="stage">
@@ -141,7 +149,7 @@ h1 b{color:var(--accent);font-weight:400}
       <li>🔍 그림 카드에는 시기 이름이 없어요. 염색체 모양으로 판단해요</li>
     </ul>
     <div class="btns"><button class="go" id="go" type="button">▶ 시작하기</button><button class="ghost" id="key1" type="button">📖 정답 보기</button></div>
-    <div class="best" id="bestTxt"></div>
+    <p class="recT">🏆 나의 최고 기록 TOP 5</p><ol class="recs" id="recs1"></ol><div class="best" id="bestTxt"></div>
   </div>
 </div>
 
@@ -150,7 +158,7 @@ h1 b{color:var(--accent);font-weight:400}
     <h2 id="rTitle">🎉 게임 끝!</h2>
     <div class="big" id="rScore">0</div>
     <div class="stat"><span class="chip">✅ <em id="rOk">0</em>/<span id="rN">27</span> 정답</span><span class="chip">⏱ 평균 <em id="rAvg">0</em>초</span><span class="chip">🔥 최대 <em id="rCombo">0</em>연속</span></div>
-    <div class="best" id="rBest"></div>
+    <div class="best" id="rBest"></div><p class="recT">🏆 나의 최고 기록 TOP 5</p><ol class="recs" id="recs2"></ol>
     <div id="missWrap"><p style="font-weight:900;margin-top:14px;text-align:center">📝 오답 노트</p><ul class="miss" id="miss"></ul></div>
     <div class="btns"><button class="go" id="again" type="button">🔄 다시 하기</button><button class="ghost" id="key2" type="button">📖 정답 보기</button></div>
   </div>
@@ -212,8 +220,12 @@ $('key').innerHTML = ST.map((s, k) => '<div class="kc ' + SLOT_CLS(k) + '">' + w
 // ---------- game state
 let deck = [], idx = 0, hearts = 5, score = 0, combo = 0, maxCombo = 0, ok = 0, times = [], misses = [], t0 = 0, busy = false, playing = false, tAnim = 0;
 const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } } };
-const BK = 'meiosis_card_best';
-function showBest() { const b = store.get(BK); $('bestTxt').textContent = b ? '🏆 내 최고 점수: ' + b + '점' : '아직 기록이 없어요. 첫 기록에 도전!'; }
+const RK = 'meiosis_card_recs';
+function recs() { let r = store.get(RK); if (!Array.isArray(r)) { r = []; const old = store.get('meiosis_card_best'); if (old) r.push({ s: old, ok: null, n: null, d: '' }); } return r; }
+function bestScore() { const r = recs(); return r.length ? r[0].s : 0; }
+function fmtD(t) { if (!t) return ''; const d = new Date(t); return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
+function recHTML(r, me) { if (!r.length) return '<li><span class="rk">-</span><span>아직 기록이 없어요. 첫 기록에 도전!</span><span></span></li>'; return r.map((x, i) => '<li' + (i === me ? ' class="me"' : '') + '><span class="rk">' + (i + 1) + '위</span><span><b>' + x.s.toLocaleString() + '</b>점' + (x.ok != null ? ' · ' + x.ok + '/' + x.n + ' 정답' : '') + '</span><span>' + (i === me ? '방금!' : fmtD(x.d)) + '</span></li>').join(''); }
+function showBest() { const r = recs(); $('recs1').innerHTML = recHTML(r, -1); $('hb').textContent = bestScore().toLocaleString(); $('bestTxt').textContent = '※ 기록은 이 기기의 이 브라우저에 저장돼요 (인터넷 기록을 지우면 사라져요)'; }
 showBest();
 let AC = null;
 function beep(f, d = .12, type = 'triangle', v = .08) { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); const o = AC.createOscillator(), g = AC.createGain(); o.type = type; o.frequency.value = f; g.gain.setValueAtTime(v, AC.currentTime); g.gain.exponentialRampToValueAtTime(.0001, AC.currentTime + d); o.connect(g).connect(AC.destination); o.start(); o.stop(AC.currentTime + d); } catch (e) { } }
@@ -260,11 +272,12 @@ function answer(k) {
 function next() { idx++; if (idx >= deck.length) end(); else show(); }
 function end() {
   playing = false; cancelAnimationFrame(tAnim); $('prog').firstElementChild.style.width = (Math.min(idx + 1, deck.length) / deck.length * 100) + '%';
-  const prev = store.get(BK), nb = !prev || score > prev; if (nb) store.set(BK, score);
+  const prevBest = bestScore(), nb = score > prevBest || !recs().length; const r = recs(), me = { s: score, ok, n: deck.length, d: Date.now() }; r.push(me); r.sort((a, b) => b.s - a.s); const top = r.slice(0, 5), rank = top.indexOf(me); store.set(RK, top); $('hb').textContent = bestScore().toLocaleString();
   $('rTitle').textContent = hearts <= 0 ? '💔 목숨을 모두 잃었어요' : misses.length == 0 ? '🏆 완벽해요! 모두 정답' : '🎉 모든 카드 완료!';
   $('rScore').textContent = score; $('rOk').textContent = ok; $('rN').textContent = deck.length;
   $('rAvg').textContent = times.length ? (times.reduce((a, b) => a + b, 0) / times.length).toFixed(1) : '-'; $('rCombo').textContent = maxCombo;
-  $('rBest').textContent = nb ? '🏆 새 최고 점수!' : '🏆 내 최고 점수 ' + prev + '점';
+  $('rBest').textContent = nb ? '🎉 개인 최고 기록 경신!' : rank >= 0 ? '👏 TOP 5 중 ' + (rank + 1) + '위 기록이에요! (최고 ' + prevBest.toLocaleString() + '점)' : '최고 기록 ' + prevBest.toLocaleString() + '점까지 ' + (prevBest - score).toLocaleString() + '점 남았어요';
+  $('recs2').innerHTML = recHTML(top, rank);
   $('missWrap').hidden = !misses.length;
   $('miss').innerHTML = misses.map(m => '<li>' + (m.c.t == 'pic' ? wrap(DRAW[m.c.k]()) : '') + '<div style="flex:1;min-width:0">' + (m.c.t == 'txt' ? '“' + m.c.q + '”<br>' : '') + '<span class="y">내 답 ' + ST[m.pick][0] + '</span> → <span class="a">정답 ' + ST[m.c.k][0] + '</span></div></li>').join('');
   setTimeout(() => { $('result').hidden = false; beep(523, .15); setTimeout(() => beep(659, .15), 140); setTimeout(() => beep(784, .3), 280); }, 300);
