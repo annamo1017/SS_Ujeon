@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>생식세포분열 카드 게임</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="생식세포분열 9단계를 빠르게 구분하는 반응속도 카드 게임">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700;900&display=swap">
+<style>
+/* Layout: one screen — HUD (hearts·score) on top, one big card in the middle, nine stage slots below in two rows (감수 1분열 / 감수 2분열). Dark lab-bench look shared with the other 생식과 유전 apps. */
+:root{
+  --bg:#0b1220; --bg2:#140c18; --panel:#161d2b; --line:#2a3346;
+  --fg:#e8ecf2; --mute:#9aa6b2; --accent:#ffd43b; --ok:#22c55e; --bad:#f87171; --heart:#fb7185;
+  --mom:#ef4444; --dad:#3b82f6; --cell:#1f2740; --cellE:#8b93b8; --nuc:#2b2547; --spin:rgba(255,212,59,.5);
+  --paper:#f6f3ea; --ink:#1b2030; --m1:#38bdf8; --m2:#c084fc;
+  --display:'Black Han Sans','Noto Sans KR',system-ui,sans-serif;
+  --body:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:linear-gradient(180deg,var(--bg),var(--bg2));color:var(--fg);font-family:var(--body);font-size:15px;overflow:hidden;touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+#app{height:100%;display:flex;flex-direction:column;align-items:center;gap:10px;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));box-sizing:border-box}
+header{width:100%;max-width:820px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(19px,4.4vw,28px);margin:0;letter-spacing:.5px}
+h1 b{color:var(--accent);font-weight:400}
+.hud{display:flex;gap:8px;align-items:center;font-variant-numeric:tabular-nums}
+.chip{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-weight:700;font-size:14px;white-space:nowrap}
+.chip em{font-style:normal;color:var(--accent)}
+#hearts{color:var(--heart);letter-spacing:2px;font-size:17px}
+#hearts .lost{color:#3a4258}
+.guide{width:100%;max-width:820px;font-size:13px;color:var(--mute);text-align:center;margin:-2px 0 0;line-height:1.5}
+.guide i{display:inline-block;width:10px;height:10px;border-radius:3px;margin:0 3px 0 8px;vertical-align:-1px}
+#stage{flex:1;min-height:0;width:100%;max-width:820px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;position:relative}
+#prog{width:min(100%,420px);height:6px;background:#1f2633;border-radius:6px;overflow:hidden}
+#prog i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+#card{position:relative;height:min(100%,330px);aspect-ratio:4/3.3;max-width:100%;border-radius:20px;display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:12px;background:var(--cell);border:2px solid var(--line);box-shadow:0 14px 40px rgba(0,0,0,.45)}
+#card.pic{background:#121a2c}
+#card.txt{background:var(--paper);color:var(--ink);border-color:#d8d1bd}
+#card svg{height:100%;width:auto;max-width:100%;display:block}
+#card .q{font-weight:900;font-size:clamp(17px,3.6vw,26px);line-height:1.5;text-align:center;word-break:keep-all;padding:0 6px}
+#card .kind{position:absolute;top:8px;left:12px;font-size:12px;font-weight:700;color:var(--mute)}
+#card.txt .kind{color:#8a836e}
+#card.in{animation:cin .28s ease-out}
+@keyframes cin{from{transform:translateY(16px) scale(.94);opacity:0}}
+#card.okk{animation:cok .35s ease-in forwards}
+@keyframes cok{to{transform:translateY(60px) scale(.6);opacity:0}}
+#card.no{animation:shk .4s}
+@keyframes shk{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+#tbar{width:min(100%,420px);height:4px;border-radius:4px;background:#1f2633;overflow:hidden}
+#tbar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--ok),var(--accent));transform-origin:left}
+#fb{min-height:44px;width:100%;max-width:620px;text-align:center;font-size:14.5px;line-height:1.45;font-weight:700}
+#fb .g{color:var(--ok)} #fb .r{color:var(--bad)}
+.float{position:absolute;left:50%;top:40%;transform:translateX(-50%);font-family:var(--display);font-size:34px;color:var(--accent);pointer-events:none;animation:fl .8s ease-out forwards;text-shadow:0 2px 10px rgba(0,0,0,.6)}
+@keyframes fl{to{transform:translate(-50%,-60px);opacity:0}}
+#slots{width:100%;max-width:820px;display:flex;flex-direction:column;gap:6px}
+.row{display:grid;gap:6px;align-items:stretch}
+.row.r1{grid-template-columns:repeat(5,1fr)}
+.row.r2{grid-template-columns:repeat(4,1fr);width:80%;margin:0 auto}
+.rl{font-size:12px;font-weight:700;color:var(--mute);display:flex;align-items:center;gap:6px}
+.rl::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c)}
+.slot{--c:var(--m1);font:inherit;color:var(--fg);background:#121a2a;border:2px solid #2c3750;border-top:4px solid var(--c);border-radius:12px;padding:9px 4px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0}
+.slot.m2{--c:var(--m2)}
+.slot.pre{--c:#94a3b8}
+.slot b{font-family:var(--display);font-weight:400;font-size:clamp(15px,3.6vw,22px);line-height:1.15}
+.slot small{font-size:clamp(9px,2vw,11px);color:var(--mute);letter-spacing:.02em}
+.slot:hover{background:#18223a}
+.slot:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.slot.good{border-color:var(--ok);background:#0f2a1c}
+.slot.wrong{border-color:var(--bad);background:#2a1214}
+.slot.hint{border-color:var(--ok);box-shadow:0 0 0 3px rgba(34,197,94,.35)}
+.slot:disabled{cursor:default}
+/* sheets */
+.sheet{position:fixed;inset:0;background:rgba(5,8,14,.76);display:flex;align-items:center;justify-content:center;z-index:10;padding-block:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:18px;max-width:680px;width:100%;max-height:100%;overflow-y:auto;box-sizing:border-box;touch-action:pan-y}
+.box h2{font-family:var(--display);font-weight:400;font-size:clamp(22px,5vw,32px);margin:0 0 6px;text-align:center}
+.box p{margin:6px 0;line-height:1.6}
+.lead{color:var(--mute);text-align:center}
+.rules{list-style:none;padding:0;margin:10px auto;max-width:460px;line-height:1.8;font-size:14.5px}
+.btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.go{background:var(--accent);color:#141005;border:0;border-radius:999px;padding:13px 30px;font:inherit;font-weight:900;font-size:17px;cursor:pointer}
+.ghost{background:transparent;border:1px solid var(--line);color:var(--fg);border-radius:999px;padding:12px 20px;font:inherit;font-weight:700;cursor:pointer}
+.go:focus-visible,.ghost:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+.best{font-size:13px;color:var(--mute);text-align:center;margin-top:8px;font-variant-numeric:tabular-nums}
+.big{font-family:var(--display);font-size:64px;color:var(--accent);text-align:center;line-height:1;margin:6px 0;font-variant-numeric:tabular-nums}
+.stat{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;font-variant-numeric:tabular-nums}
+.key{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.kc{background:#0f1522;border:1px solid var(--line);border-top:3px solid var(--c,var(--m1));border-radius:12px;padding:8px;min-width:0}
+.kc.m2{--c:var(--m2)} .kc.pre{--c:#94a3b8}
+.kc svg{width:100%;height:auto;display:block;max-height:130px}
+.kc b{display:block;font-size:15px;margin:4px 0 2px}
+.kc ul{margin:0;padding-left:16px;font-size:12px;color:var(--mute);line-height:1.45}
+.miss{margin:10px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.miss li{background:#0f1522;border:1px solid var(--line);border-radius:12px;padding:8px 10px;display:flex;gap:10px;align-items:center;font-size:13.5px;line-height:1.45}
+.miss svg{width:64px;height:64px;flex:none}
+.miss .a{color:var(--ok);font-weight:900;white-space:nowrap}
+.miss .y{color:var(--bad);white-space:nowrap}
+.note{font-size:12px;color:var(--mute);text-align:center}
+@media (max-width:560px){.key{grid-template-columns:repeat(2,1fr)}.row.r2{width:100%}}
+@media (prefers-reduced-motion:reduce){#card.in,#card.okk,#card.no,.float{animation:none}}
+/* SVG parts */
+.cm{fill:var(--cell);stroke:var(--cellE);stroke-width:2}
+.nu{fill:var(--nuc);stroke:#7c6fb5;stroke-width:1.5}
+.nud{fill:var(--nuc);stroke:#7c6fb5;stroke-width:1.5;stroke-dasharray:4 4;opacity:.7}
+.sp{stroke:var(--spin);stroke-width:1.2;fill:none}
+.eq{stroke:rgba(255,255,255,.28);stroke-width:1;stroke-dasharray:3 4}
+.pl{stroke:var(--accent);stroke-width:2.5;stroke-dasharray:3 3}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>생식세포분열 <b>카드 게임</b></h1>
+    <div class="hud"><span class="chip" id="hearts" aria-label="남은 목숨">♥♥♥♥♥</span><span class="chip">점수 <em id="score">0</em></span></div>
+  </header>
+  <p class="guide">카드를 보고 알맞은 시기를 누르세요. 빠를수록 점수가 높아요.<i style="background:var(--mom)"></i>엄마 것<i style="background:var(--dad)"></i>아빠 것 · 긴 것 1번, 짧은 것 2번 (2n=4)</p>
+  <div id="stage">
+    <div id="prog"><i></i></div>
+    <div id="card" class="pic"></div>
+    <div id="tbar"><i></i></div>
+    <div id="fb" aria-live="polite"></div>
+  </div>
+  <div id="slots">
+    <div class="rl" style="--c:var(--m1)">감수 1분열 (상동 염색체가 나뉘어요)</div>
+    <div class="row r1" id="row1"></div>
+    <div class="rl" style="--c:var(--m2)">감수 2분열 (염색 분체가 나뉘어요)</div>
+    <div class="row r2" id="row2"></div>
+  </div>
+</div>
+
+<div class="sheet" id="start">
+  <div class="box">
+    <h2>🧬 생식세포분열 카드 게임</h2>
+    <p class="lead">세포 그림이나 특징 문장 카드가 하나씩 나와요.<br>알맞은 시기 칸을 빠르게 눌러 보세요!</p>
+    <ul class="rules">
+      <li>🃏 그림 카드 9장 + 문장 카드 18장이 무작위로 나와요</li>
+      <li>⚡ 빨리 맞힐수록 점수가 높고, 연속으로 맞히면 보너스</li>
+      <li>♥ 목숨 5개 · 틀리면 하나씩 줄고, 모두 잃으면 끝나요</li>
+      <li>🔍 그림 카드에는 시기 이름이 없어요. 염색체 모양으로 판단해요</li>
+    </ul>
+    <div class="btns"><button class="go" id="go" type="button">▶ 시작하기</button><button class="ghost" id="key1" type="button">📖 정답 보기</button></div>
+    <div class="best" id="bestTxt"></div>
+  </div>
+</div>
+
+<div class="sheet" id="result" hidden>
+  <div class="box">
+    <h2 id="rTitle">🎉 게임 끝!</h2>
+    <div class="big" id="rScore">0</div>
+    <div class="stat"><span class="chip">✅ <em id="rOk">0</em>/<span id="rN">27</span> 정답</span><span class="chip">⏱ 평균 <em id="rAvg">0</em>초</span><span class="chip">🔥 최대 <em id="rCombo">0</em>연속</span></div>
+    <div class="best" id="rBest"></div>
+    <div id="missWrap"><p style="font-weight:900;margin-top:14px;text-align:center">📝 오답 노트</p><ul class="miss" id="miss"></ul></div>
+    <div class="btns"><button class="go" id="again" type="button">🔄 다시 하기</button><button class="ghost" id="key2" type="button">📖 정답 보기</button></div>
+  </div>
+</div>
+
+<div class="sheet" id="keySheet" hidden>
+  <div class="box">
+    <h2>📖 정답 보기</h2>
+    <p class="lead">생식세포분열 9단계 · 2n=4 → n=2</p>
+    <div class="key" id="key"></div>
+    <p class="note" style="margin-top:10px">감수 1분열과 2분열 사이에는 DNA 복제가 없어요. 감수 1분열에서는 상동 염색체가, 감수 2분열에서는 염색 분체가 나뉘어요.</p>
+    <div class="btns"><button class="go" id="keyX" type="button">닫기</button></div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const R = 'var(--mom)', B = 'var(--dad)';
+// ---------- chromosome drawing (SVG, viewBox 0 0 120 120)
+const cd = (x, y, len, col, w = 6) => '<rect x="' + (x - w / 2) + '" y="' + (y - len / 2) + '" width="' + w + '" height="' + len + '" rx="' + w / 2 + '" style="fill:' + col + '" stroke="rgba(0,0,0,.45)" stroke-width="1"/>';
+const cen = (x, y, r = 2.2) => '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="#fff" stroke="rgba(0,0,0,.4)" stroke-width=".8"/>';
+function X(x, y, len, col, rot = 0, w = 6) { const g = cd(x - w * .62, y, len, col, w) + cd(x + w * .62, y, len, col, w) + '<rect x="' + (x - w * .7) + '" y="' + (y - len * .1 - 2) + '" width="' + w * 1.4 + '" height="4" style="fill:' + col + '"/>' + cen(x, y - len * .1); return rot ? '<g transform="rotate(' + rot + ' ' + x + ' ' + y + ')">' + g + '</g>' : g; }
+function S(x, y, len, col, rot = 0, w = 6) { const g = cd(x, y, len, col, w) + cen(x, y - len * .1, 1.8); return rot ? '<g transform="rotate(' + rot + ' ' + x + ' ' + y + ')">' + g + '</g>' : g; }
+const ln = (x1, y1, x2, y2, c = 'sp') => '<line class="' + c + '" x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '"/>';
+const aster = (x, y, n = 6) => Array.from({ length: n }, (_, i) => { const a = i / n * 6.283; return ln(x, y, x + Math.cos(a) * 7, y + Math.sin(a) * 7); }).join('') + '<circle cx="' + x + '" cy="' + y + '" r="2.4" fill="var(--accent)"/>';
+const wrap = s => '<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="세포 그림">' + s + '</svg>';
+const wav = (x, y, col) => '<path d="M' + x + ' ' + y + ' q5 -7 10 0 t10 0 t10 0" fill="none" style="stroke:' + col + '" stroke-width="2.6" stroke-linecap="round"/>';
+const DRAW = [
+  /* 0 간기 */ () => '<circle class="cm" cx="60" cy="60" r="50"/><circle class="nu" cx="60" cy="60" r="31"/>' + wav(40, 47, R) + wav(46, 58, B) + wav(38, 69, R) + wav(48, 78, B),
+  /* 1 전기 I */ () => '<circle class="cm" cx="60" cy="60" r="50"/><circle class="nud" cx="60" cy="60" r="34"/>' + aster(14, 60) + aster(106, 60) + X(43, 56, 34, R) + X(53, 56, 34, B) + X(72, 64, 20, R) + X(82, 64, 20, B),
+  /* 2 중기 I */ () => '<circle class="cm" cx="60" cy="60" r="50"/>' + ln(60, 14, 60, 106, 'eq') + ln(12, 60, 52, 37) + ln(12, 60, 52, 80) + ln(108, 60, 68, 37) + ln(108, 60, 68, 80) + aster(12, 60) + aster(108, 60) + X(53, 40, 32, R) + X(67, 40, 32, B) + X(53, 82, 19, B) + X(67, 82, 19, R),
+  /* 3 후기 I */ () => '<ellipse class="cm" cx="60" cy="60" rx="55" ry="44"/>' + ln(8, 60, 28, 38) + ln(8, 60, 28, 78) + ln(112, 60, 92, 38) + ln(112, 60, 92, 78) + aster(8, 60) + aster(112, 60) + X(30, 41, 32, R) + X(30, 80, 19, B) + X(90, 41, 32, B) + X(90, 80, 19, R),
+  /* 4 말기 I */ () => '<circle class="cm" cx="33" cy="60" r="28"/><circle class="cm" cx="87" cy="60" r="28"/>' + ln(60, 44, 60, 76, 'pl') + X(27, 57, 28, R) + X(41, 62, 17, B) + X(81, 57, 28, B) + X(95, 62, 17, R),
+  /* 5 전기 II */ () => '<circle class="cm" cx="31" cy="60" r="27"/><circle class="cm" cx="89" cy="60" r="27"/>' + [31, 89].map((cx, i) => '<circle class="nud" cx="' + cx + '" cy="60" r="18"/>' + aster(cx, 37, 5) + aster(cx, 83, 5) + X(cx - 6, 58, 24, i ? B : R, 25, 5) + X(cx + 8, 64, 14, i ? R : B, -30, 5)).join(''),
+  /* 6 중기 II */ () => '<circle class="cm" cx="31" cy="60" r="27"/><circle class="cm" cx="89" cy="60" r="27"/>' + [31, 89].map((cx, i) => ln(cx - 24, 60, cx + 24, 60, 'eq') + ln(cx, 30, cx - 3, 52) + ln(cx, 30, cx + 2, 66) + ln(cx, 90, cx - 3, 52) + ln(cx, 90, cx + 2, 66) + aster(cx, 30) + aster(cx, 90) + X(cx - 3, 53, 26, i ? B : R, 90, 5) + X(cx + 2, 67, 15, i ? R : B, 90, 5)).join(''),
+  /* 7 후기 II */ () => '<ellipse class="cm" cx="31" cy="60" rx="24" ry="46"/><ellipse class="cm" cx="89" cy="60" rx="24" ry="46"/>' + [31, 89].map((cx, i) => ln(cx, 16, cx, 30) + ln(cx, 104, cx, 90) + aster(cx, 16) + aster(cx, 104) + S(cx - 2, 31, 24, i ? B : R, 90, 5) + S(cx + 2, 40, 14, i ? R : B, 90, 5) + S(cx - 2, 89, 24, i ? B : R, 90, 5) + S(cx + 2, 80, 14, i ? R : B, 90, 5)).join(''),
+  /* 8 말기 II */ () => [[31, 33], [89, 33], [31, 87], [89, 87]].map(([x, y], i) => '<circle class="cm" cx="' + x + '" cy="' + y + '" r="21"/>' + S(x - 5, y, 22, i % 2 ? B : R, 0, 5) + S(x + 6, y + 3, 13, i % 2 ? R : B, 0, 5)).join('')
+];
+// [이름, 분열, 문장들]
+const ST = [
+  ['간기', '분열 준비', ['DNA가 복제되어 유전 물질의 양이 2배가 된다', '핵막이 뚜렷하고, 유전 물질이 실처럼 풀어진 염색사 상태이다']],
+  ['전기 Ⅰ', '감수 1분열', ['상동 염색체끼리 짝을 지어 2가 염색체를 만든다', '핵막이 사라지기 시작하고, 상동 염색체가 서로 붙어 있는 모습이 처음 보인다']],
+  ['중기 Ⅰ', '감수 1분열', ['2가 염색체가 세포 가운데(적도면)에 배열된다', '상동 염색체 쌍이 적도면을 사이에 두고 나란히 마주 보며 늘어선다']],
+  ['후기 Ⅰ', '감수 1분열', ['상동 염색체가 분리되어 양극으로 이동한다', '염색 분체가 붙어 있는 X자 모양 그대로 양쪽으로 끌려간다']],
+  ['말기 Ⅰ', '감수 1분열', ['세포질이 나뉘어 딸세포 2개가 생긴다 (감수 1분열이 끝남)', '염색체 수가 절반(2n → n)으로 줄어든다']],
+  ['전기 Ⅱ', '감수 2분열', ['DNA 복제 없이 감수 2분열이 바로 시작된다', '두 딸세포에서 각각 방추사가 다시 만들어지기 시작한다']],
+  ['중기 Ⅱ', '감수 2분열', ['짝이 없는 X자 염색체들이 적도면에 한 줄로 배열된다', '두 세포에서 각각 염색체가 적도면에 늘어선다']],
+  ['후기 Ⅱ', '감수 2분열', ['염색 분체가 분리되어 양극으로 이동한다', 'X자였던 염색체가 갈라져 한 가닥씩 양쪽으로 끌려간다']],
+  ['말기 Ⅱ', '감수 2분열', ['염색체 수가 n인 딸세포(생식세포) 4개가 만들어진다', '각 딸세포의 염색체는 한 가닥(염색 분체 1개)으로 되어 있다']]
+];
+const SLOT_CLS = k => k == 0 ? 'pre' : k <= 4 ? 'm1' : 'm2';
+// slots
+$('row1').innerHTML = [0, 1, 2, 3, 4].map(k => slotHTML(k)).join('');
+$('row2').innerHTML = [5, 6, 7, 8].map(k => slotHTML(k)).join('');
+function slotHTML(k) { const nm = ST[k][0].split(' '); return '<button type="button" class="slot ' + SLOT_CLS(k) + '" id="s' + k + '" data-k="' + k + '"><b>' + ST[k][0] + '</b><small>' + (k == 0 ? 'Interphase' : nm[0] == '전기' ? 'Prophase ' + nm[1] : nm[0] == '중기' ? 'Metaphase ' + nm[1] : nm[0] == '후기' ? 'Anaphase ' + nm[1] : 'Telophase ' + nm[1]) + '</small></button>'; }
+document.querySelectorAll('.slot').forEach(b => b.onclick = () => answer(+b.dataset.k));
+// key sheet
+$('key').innerHTML = ST.map((s, k) => '<div class="kc ' + SLOT_CLS(k) + '">' + wrap(DRAW[k]()) + '<b>' + s[0] + ' <small style="color:var(--mute);font-weight:400;font-size:12px">' + s[1] + '</small></b><ul>' + s[2].map(t => '<li>' + t + '</li>').join('') + '</ul></div>').join('');
+// ---------- game state
+let deck = [], idx = 0, hearts = 5, score = 0, combo = 0, maxCombo = 0, ok = 0, times = [], misses = [], t0 = 0, busy = false, playing = false, tAnim = 0;
+const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } } };
+const BK = 'meiosis_card_best';
+function showBest() { const b = store.get(BK); $('bestTxt').textContent = b ? '🏆 내 최고 점수: ' + b + '점' : '아직 기록이 없어요. 첫 기록에 도전!'; }
+showBest();
+let AC = null;
+function beep(f, d = .12, type = 'triangle', v = .08) { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); const o = AC.createOscillator(), g = AC.createGain(); o.type = type; o.frequency.value = f; g.gain.setValueAtTime(v, AC.currentTime); g.gain.exponentialRampToValueAtTime(.0001, AC.currentTime + d); o.connect(g).connect(AC.destination); o.start(); o.stop(AC.currentTime + d); } catch (e) { } }
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function drawHearts() { $('hearts').innerHTML = '♥'.repeat(hearts) + '<span class="lost">' + '♥'.repeat(5 - hearts) + '</span>'; }
+function start() {
+  deck = shuffle(ST.flatMap((s, k) => [{ k, t: 'pic' }, ...s[2].map(q => ({ k, t: 'txt', q }))]));
+  idx = 0; hearts = 5; score = 0; combo = 0; maxCombo = 0; ok = 0; times = []; misses = []; playing = true; busy = false;
+  $('score').textContent = 0; drawHearts(); $('fb').innerHTML = '';
+  ['start', 'result', 'keySheet'].forEach(i => $(i).hidden = true);
+  beep(660, .15, 'sine'); show();
+}
+function show() {
+  const c = deck[idx], el = $('card');
+  el.className = c.t == 'pic' ? 'pic' : 'txt';
+  el.innerHTML = '<span class="kind">' + (c.t == 'pic' ? '🔬 그림 카드' : '📝 문장 카드') + '</span>' + (c.t == 'pic' ? wrap(DRAW[c.k]()) : '<div class="q">' + c.q + '</div>');
+  void el.offsetWidth; el.classList.add('in');
+  $('prog').firstElementChild.style.width = (idx / deck.length * 100) + '%';
+  document.querySelectorAll('.slot').forEach(s => { s.classList.remove('good', 'wrong', 'hint'); s.disabled = false; });
+  t0 = performance.now(); busy = false; cancelAnimationFrame(tAnim); runBar();
+}
+function runBar() { const u = Math.min(1, (performance.now() - t0) / 6000); $('tbar').firstElementChild.style.transform = 'scaleX(' + (1 - u) + ')'; if (playing && !busy && u < 1) tAnim = requestAnimationFrame(runBar); }
+function floatPts(n) { const f = document.createElement('div'); f.className = 'float'; f.textContent = '+' + n; $('stage').appendChild(f); setTimeout(() => f.remove(), 800); }
+function answer(k) {
+  if (!playing || busy) return; busy = true;
+  const c = deck[idx], dt = (performance.now() - t0) / 1000, el = $('card'), s = ST[c.k];
+  document.querySelectorAll('.slot').forEach(b => b.disabled = true);
+  if (k === c.k) {
+    combo++; maxCombo = Math.max(maxCombo, combo); ok++; times.push(dt);
+    const speed = Math.max(0, Math.round((6 - dt) * 25)), pts = 100 + speed + (combo >= 3 ? (combo - 2) * 10 : 0);
+    score += pts; $('score').textContent = score; floatPts(pts);
+    $('s' + k).classList.add('good'); el.classList.add('okk');
+    $('fb').innerHTML = '<span class="g">✅ ' + s[0] + '</span> · ' + dt.toFixed(1) + '초' + (combo >= 3 ? ' · 🔥 ' + combo + '연속' : '');
+    beep(880, .1, 'sine'); setTimeout(() => beep(1175, .12, 'sine'), 80);
+    setTimeout(next, 420);
+  } else {
+    combo = 0; hearts--; drawHearts(); misses.push({ c, pick: k });
+    $('s' + k).classList.add('wrong'); $('s' + c.k).classList.add('hint'); el.classList.remove('in'); void el.offsetWidth; el.classList.add('no');
+    $('fb').innerHTML = '<span class="r">❌ 정답은 ' + s[0] + '</span> (내 답: ' + ST[k][0] + ')<br>' + (c.t == 'pic' ? s[2][0] : '');
+    beep(170, .25, 'sawtooth', .06);
+    setTimeout(() => { if (hearts <= 0) end(); else next(); }, 1600);
+  }
+}
+function next() { idx++; if (idx >= deck.length) end(); else show(); }
+function end() {
+  playing = false; cancelAnimationFrame(tAnim); $('prog').firstElementChild.style.width = (Math.min(idx + 1, deck.length) / deck.length * 100) + '%';
+  const prev = store.get(BK), nb = !prev || score > prev; if (nb) store.set(BK, score);
+  $('rTitle').textContent = hearts <= 0 ? '💔 목숨을 모두 잃었어요' : misses.length == 0 ? '🏆 완벽해요! 모두 정답' : '🎉 모든 카드 완료!';
+  $('rScore').textContent = score; $('rOk').textContent = ok; $('rN').textContent = deck.length;
+  $('rAvg').textContent = times.length ? (times.reduce((a, b) => a + b, 0) / times.length).toFixed(1) : '-'; $('rCombo').textContent = maxCombo;
+  $('rBest').textContent = nb ? '🏆 새 최고 점수!' : '🏆 내 최고 점수 ' + prev + '점';
+  $('missWrap').hidden = !misses.length;
+  $('miss').innerHTML = misses.map(m => '<li>' + (m.c.t == 'pic' ? wrap(DRAW[m.c.k]()) : '') + '<div style="flex:1;min-width:0">' + (m.c.t == 'txt' ? '“' + m.c.q + '”<br>' : '') + '<span class="y">내 답 ' + ST[m.pick][0] + '</span> → <span class="a">정답 ' + ST[m.c.k][0] + '</span></div></li>').join('');
+  setTimeout(() => { $('result').hidden = false; beep(523, .15); setTimeout(() => beep(659, .15), 140); setTimeout(() => beep(784, .3), 280); }, 300);
+}
+$('go').onclick = start; $('again').onclick = start;
+let keyFrom = 'start';
+$('key1').onclick = () => { keyFrom = 'start'; $('start').hidden = true; $('keySheet').hidden = false; };
+$('key2').onclick = () => { keyFrom = 'result'; $('result').hidden = true; $('keySheet').hidden = false; };
+$('keyX').onclick = () => { $('keySheet').hidden = true; $(keyFrom).hidden = false; showBest(); };
+// keyboard: 1~9
+addEventListener('keydown', e => { const n = +e.key; if (n >= 1 && n <= 9) answer(n - 1); });
+// first frame: sample card behind the start sheet
+$('card').innerHTML = '<span class="kind">🔬 그림 카드</span>' + wrap(DRAW[3]()); drawHearts();
+window.__ok = 1;
+</script>
+</body>
+</html>
