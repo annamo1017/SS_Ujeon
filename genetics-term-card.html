@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>유전 용어 카드 게임</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="유전 용어 8개를 빠르게 구분하는 반응속도 카드 게임">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700;900&display=swap">
+<style>
+/* Layout: one screen — HUD (hearts·score) on top, one big card in the middle, nine stage slots below in two rows (감수 1분열 / 감수 2분열). Dark lab-bench look shared with the other 생식과 유전 apps. */
+:root{
+  --bg:#0b1220; --bg2:#140c18; --panel:#161d2b; --line:#2a3346;
+  --fg:#e8ecf2; --mute:#9aa6b2; --accent:#ffd43b; --ok:#22c55e; --bad:#f87171; --heart:#fb7185;
+  --mom:#ef4444; --dad:#3b82f6; --cell:#1f2740; --cellE:#8b93b8; --nuc:#2b2547; --spin:rgba(255,212,59,.5);
+  --paper:#f6f3ea; --ink:#1b2030; --m1:#38bdf8; --m2:#c084fc;
+  --display:'Black Han Sans','Noto Sans KR',system-ui,sans-serif;
+  --body:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:linear-gradient(180deg,var(--bg),var(--bg2));color:var(--fg);font-family:var(--body);font-size:15px;overflow:hidden;touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+#app{height:100%;display:flex;flex-direction:column;align-items:center;gap:10px;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));box-sizing:border-box}
+header{width:100%;max-width:820px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(19px,4.4vw,28px);margin:0;letter-spacing:.5px}
+h1 b{color:var(--accent);font-weight:400}
+.hud{display:flex;gap:8px;align-items:center;font-variant-numeric:tabular-nums}
+.chip{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-weight:700;font-size:14px;white-space:nowrap}
+.chip em{font-style:normal;color:var(--accent)}
+#hearts{color:var(--heart);letter-spacing:2px;font-size:17px}
+#hearts .lost{color:#3a4258}
+.guide{width:100%;max-width:820px;font-size:13px;color:var(--mute);text-align:center;margin:-2px 0 0;line-height:1.5}
+.guide i{display:inline-block;width:10px;height:10px;border-radius:3px;margin:0 3px 0 8px;vertical-align:-1px}
+#stage{flex:1;min-height:0;width:100%;max-width:820px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;position:relative}
+#prog{width:min(100%,420px);height:6px;background:#1f2633;border-radius:6px;overflow:hidden}
+#prog i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+#card{position:relative;height:min(100%,330px);aspect-ratio:4/3.3;max-width:100%;border-radius:20px;display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:12px;background:var(--cell);border:2px solid var(--line);box-shadow:0 14px 40px rgba(0,0,0,.45)}
+#card.pic{background:#121a2c}
+#card.txt{background:var(--paper);color:var(--ink);border-color:#d8d1bd}
+#card svg{height:100%;width:auto;max-width:100%;display:block}
+#card .q{font-weight:900;font-size:clamp(17px,3.6vw,26px);line-height:1.5;text-align:center;word-break:keep-all;padding:0 6px}
+#card .kind{position:absolute;top:8px;left:12px;font-size:12px;font-weight:700;color:var(--mute)}
+#card.txt .kind{color:#8a836e}
+#card.in{animation:cin .28s ease-out}
+@keyframes cin{from{transform:translateY(16px) scale(.94);opacity:0}}
+#card.okk{animation:cok .35s ease-in forwards}
+@keyframes cok{to{transform:translateY(60px) scale(.6);opacity:0}}
+#card.no{animation:shk .4s}
+@keyframes shk{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+#tbar{width:min(100%,420px);height:4px;border-radius:4px;background:#1f2633;overflow:hidden}
+#tbar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--ok),var(--accent));transform-origin:left}
+#fb{min-height:44px;width:100%;max-width:620px;text-align:center;font-size:14.5px;line-height:1.45;font-weight:700}
+#fb .g{color:var(--ok)} #fb .r{color:var(--bad)}
+.float{position:absolute;left:50%;top:40%;transform:translateX(-50%);font-family:var(--display);font-size:34px;color:var(--accent);pointer-events:none;animation:fl .8s ease-out forwards;text-shadow:0 2px 10px rgba(0,0,0,.6)}
+@keyframes fl{to{transform:translate(-50%,-60px);opacity:0}}
+#slots{width:100%;max-width:820px;display:flex;flex-direction:column;gap:6px}
+.row{display:grid;gap:6px;align-items:stretch}
+.row.r1{grid-template-columns:repeat(4,1fr)}
+.row.r2{grid-template-columns:repeat(4,1fr)}
+.rl{font-size:12px;font-weight:700;color:var(--mute);display:flex;align-items:center;gap:6px}
+.rl::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c)}
+.slot{--c:var(--m1);font:inherit;color:var(--fg);background:#121a2a;border:2px solid #2c3750;border-top:4px solid var(--c);border-radius:12px;padding:9px 4px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0}
+.slot.m2{--c:var(--m2)}
+.slot.pre{--c:#94a3b8}
+.slot b{font-family:var(--display);font-weight:400;font-size:clamp(15px,3.6vw,22px);line-height:1.15}
+.slot small{font-size:clamp(9px,2vw,11px);color:var(--mute);letter-spacing:.02em}
+.slot:hover{background:#18223a}
+.slot:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.slot.good{border-color:var(--ok);background:#0f2a1c}
+.slot.wrong{border-color:var(--bad);background:#2a1214}
+.slot.hint{border-color:var(--ok);box-shadow:0 0 0 3px rgba(34,197,94,.35)}
+.slot:disabled{cursor:default}
+/* sheets */
+.sheet{position:fixed;inset:0;background:rgba(5,8,14,.76);display:flex;align-items:center;justify-content:center;z-index:10;padding-block:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:18px;max-width:680px;width:100%;max-height:100%;overflow-y:auto;box-sizing:border-box;touch-action:pan-y}
+.box h2{font-family:var(--display);font-weight:400;font-size:clamp(22px,5vw,32px);margin:0 0 6px;text-align:center}
+.box p{margin:6px 0;line-height:1.6}
+.lead{color:var(--mute);text-align:center}
+.rules{list-style:none;padding:0;margin:10px auto;max-width:460px;line-height:1.8;font-size:14.5px}
+.btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.go{background:var(--accent);color:#141005;border:0;border-radius:999px;padding:13px 30px;font:inherit;font-weight:900;font-size:17px;cursor:pointer}
+.ghost{background:transparent;border:1px solid var(--line);color:var(--fg);border-radius:999px;padding:12px 20px;font:inherit;font-weight:700;cursor:pointer}
+.go:focus-visible,.ghost:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+.best{font-size:13px;color:var(--mute);text-align:center;margin-top:8px;font-variant-numeric:tabular-nums}
+.big{font-family:var(--display);font-size:64px;color:var(--accent);text-align:center;line-height:1;margin:6px 0;font-variant-numeric:tabular-nums}
+.stat{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;font-variant-numeric:tabular-nums}
+.key{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.kc{background:#0f1522;border:1px solid var(--line);border-top:3px solid var(--c,var(--m1));border-radius:12px;padding:8px;min-width:0}
+.kc.m2{--c:var(--m2)} .kc.pre{--c:#94a3b8}
+.kc svg{width:100%;height:auto;display:block;max-height:130px}
+.kc b{display:block;font-size:15px;margin:4px 0 2px}
+.kc ul{margin:0;padding-left:16px;font-size:12px;color:var(--mute);line-height:1.45}
+.miss{margin:10px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.miss li{background:#0f1522;border:1px solid var(--line);border-radius:12px;padding:8px 10px;display:flex;gap:10px;align-items:center;font-size:13.5px;line-height:1.45}
+.miss svg{width:64px;height:64px;flex:none}
+.miss .a{color:var(--ok);font-weight:900;white-space:nowrap}
+.miss .y{color:var(--bad);white-space:nowrap}
+.recs{list-style:none;margin:8px auto 0;padding:0;max-width:420px;display:flex;flex-direction:column;gap:4px;font-variant-numeric:tabular-nums}
+.recs li{display:grid;grid-template-columns:2.2em 1fr auto;gap:8px;align-items:center;background:#0f1522;border:1px solid var(--line);border-radius:10px;padding:6px 12px;font-size:14px}
+.recs li b{font-family:var(--display);font-weight:400;font-size:18px;color:var(--accent)}
+.recs li span{color:var(--mute);font-size:12.5px}
+.recs li.me{border-color:var(--accent);background:#2a2410}
+.recs .rk{font-weight:900;color:var(--mute)}
+.recs li:first-child .rk{color:var(--accent)}
+.recT{font-weight:900;text-align:center;margin:14px 0 0;font-size:15px}
+.note{font-size:12px;color:var(--mute);text-align:center}
+@media (max-width:560px){.key{grid-template-columns:repeat(2,1fr)}.row.r2{width:100%}}
+@media (prefers-reduced-motion:reduce){#card.in,#card.okk,#card.no,.float{animation:none}}
+/* SVG parts */
+.cm{fill:var(--cell);stroke:var(--cellE);stroke-width:2}
+.nu{fill:var(--nuc);stroke:#7c6fb5;stroke-width:1.5}
+.nud{fill:var(--nuc);stroke:#7c6fb5;stroke-width:1.5;stroke-dasharray:4 4;opacity:.7}
+.sp{stroke:var(--spin);stroke-width:1.2;fill:none}
+.eq{stroke:rgba(255,255,255,.28);stroke-width:1;stroke-dasharray:3 4}
+.pl{stroke:var(--accent);stroke-width:2.5;stroke-dasharray:3 3}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>유전 용어 <b>카드 게임</b></h1>
+    <div class="hud"><span class="chip" id="hearts" aria-label="남은 목숨">♥♥♥♥♥</span><span class="chip">점수 <em id="score">0</em></span><span class="chip" title="이 기기의 내 최고 점수">🏆 <em id="hb">0</em></span></div>
+  </header>
+  <p class="guide">카드를 보고 알맞은 유전 용어를 누르세요. 빠를수록 점수가 높아요. (R: 우성 유전자, r: 열성 유전자)</p>
+  <div id="stage">
+    <div id="prog"><i></i></div>
+    <div id="card" class="pic"></div>
+    <div id="tbar"><i></i></div>
+    <div id="fb" aria-live="polite"></div>
+  </div>
+  <div id="slots">
+    <div class="rl" style="--c:var(--m1)">형질에 관한 말</div>
+    <div class="row r1" id="row1"></div>
+    <div class="rl" style="--c:var(--m2)">유전자에 관한 말</div>
+    <div class="row r2" id="row2"></div>
+  </div>
+</div>
+
+<div class="sheet" id="start">
+  <div class="box">
+    <h2>🧬 유전 용어 카드 게임</h2>
+    <p class="lead">뜻·예시 카드가 하나씩 나와요.<br>알맞은 유전 용어 칸을 빠르게 눌러 보세요!</p>
+    <ul class="rules">
+      <li>🃏 용어 8개 · 카드 27장이 무작위로 나와요</li>
+      <li>⚡ 빨리 맞힐수록 점수가 높고, 연속으로 맞히면 보너스</li>
+      <li>♥ 목숨 5개 · 틀리면 하나씩 줄고, 모두 잃으면 끝나요</li>
+      <li>📖 헷갈리면 먼저 「정답 보기」로 용어를 익혀요</li>
+    </ul>
+    <div class="btns"><button class="go" id="go" type="button">▶ 시작하기</button><button class="ghost" id="key1" type="button">📖 정답 보기</button></div>
+    <p class="recT">🏆 나의 최고 기록 TOP 5</p><ol class="recs" id="recs1"></ol><div class="best" id="bestTxt"></div>
+  </div>
+</div>
+
+<div class="sheet" id="result" hidden>
+  <div class="box">
+    <h2 id="rTitle">🎉 게임 끝!</h2>
+    <div class="big" id="rScore">0</div>
+    <div class="stat"><span class="chip">✅ <em id="rOk">0</em>/<span id="rN">27</span> 정답</span><span class="chip">⏱ 평균 <em id="rAvg">0</em>초</span><span class="chip">🔥 최대 <em id="rCombo">0</em>연속</span></div>
+    <div class="best" id="rBest"></div><p class="recT">🏆 나의 최고 기록 TOP 5</p><ol class="recs" id="recs2"></ol>
+    <div id="missWrap"><p style="font-weight:900;margin-top:14px;text-align:center">📝 오답 노트</p><ul class="miss" id="miss"></ul></div>
+    <div class="btns"><button class="go" id="again" type="button">🔄 다시 하기</button><button class="ghost" id="key2" type="button">📖 정답 보기</button></div>
+  </div>
+</div>
+
+<div class="sheet" id="keySheet" hidden>
+  <div class="box">
+    <h2>📖 정답 보기</h2>
+    <p class="lead">유전 용어 8개 한눈에 보기</p>
+    <div class="key" id="key"></div>
+    <p class="note" style="margin-top:10px">교과서에 따라 '유전자형'을 '유전자 구성'이라고도 해요. 우성·열성은 좋고 나쁨이 아니라, 함께 있을 때 겉으로 나타나는지를 말해요.</p>
+    <div class="btns"><button class="go" id="keyX" type="button">닫기</button></div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const R = 'var(--mom)', B = 'var(--dad)';
+// ---------- chromosome drawing (SVG, viewBox 0 0 120 120)
+const cd = (x, y, len, col, w = 6) => '<rect x="' + (x - w / 2) + '" y="' + (y - len / 2) + '" width="' + w + '" height="' + len + '" rx="' + w / 2 + '" style="fill:' + col + '" stroke="rgba(0,0,0,.45)" stroke-width="1"/>';
+const cen = (x, y, r = 2.2) => '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="#fff" stroke="rgba(0,0,0,.4)" stroke-width=".8"/>';
+function X(x, y, len, col, rot = 0, w = 6) { const g = cd(x - w * .62, y, len, col, w) + cd(x + w * .62, y, len, col, w) + '<rect x="' + (x - w * .7) + '" y="' + (y - len * .1 - 2) + '" width="' + w * 1.4 + '" height="4" style="fill:' + col + '"/>' + cen(x, y - len * .1); return rot ? '<g transform="rotate(' + rot + ' ' + x + ' ' + y + ')">' + g + '</g>' : g; }
+function S(x, y, len, col, rot = 0, w = 6) { const g = cd(x, y, len, col, w) + cen(x, y - len * .1, 1.8); return rot ? '<g transform="rotate(' + rot + ' ' + x + ' ' + y + ')">' + g + '</g>' : g; }
+const ln = (x1, y1, x2, y2, c = 'sp') => '<line class="' + c + '" x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '"/>';
+const aster = (x, y, n = 6) => Array.from({ length: n }, (_, i) => { const a = i / n * 6.283; return ln(x, y, x + Math.cos(a) * 7, y + Math.sin(a) * 7); }).join('') + '<circle cx="' + x + '" cy="' + y + '" r="2.4" fill="var(--accent)"/>';
+const wrap = s => '<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="세포 그림">' + s + '</svg>';
+const wav = (x, y, col) => '<path d="M' + x + ' ' + y + ' q5 -7 10 0 t10 0 t10 0" fill="none" style="stroke:' + col + '" stroke-width="2.6" stroke-linecap="round"/>';
+const pea = (x, y, r, wr, col, ed) => wr ? '<path transform="translate(' + x + ' ' + y + ') scale(' + r / 48 + ')" d="M0 -47 C15 -41 17 -29 31 -31 C43 -21 37 -7 47 3 C41 17 31 19 31 33 C17 43 7 37 -3 47 C-15 39 -25 43 -33 31 C-35 17 -47 11 -45 -1 C-37 -13 -45 -25 -33 -33 C-21 -33 -15 -45 0 -47 Z" fill="' + col + '" stroke="' + ed + '" stroke-width="4"/>' : '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="' + col + '" stroke="' + ed + '" stroke-width="3"/><ellipse cx="' + (x - r * .35) + '" cy="' + (y - r * .35) + '" rx="' + r * .3 + '" ry="' + r * .17 + '" fill="#fff" opacity=".45"/>';
+const chp = (a1, a2) => [[40, R, a1], [80, B, a2]].map(([x, c, l]) => '<rect x="' + (x - 13) + '" y="14" width="26" height="92" rx="13" style="fill:' + c + '"/><rect x="' + (x - 15) + '" y="62" width="30" height="16" rx="4" fill="#ffd43b"/><text x="' + x + '" y="75" text-anchor="middle" font-size="14" font-weight="900" fill="#111">' + l + '</text>').join('');
+const PIC = [
+  /* 0 대립 형질 */ () => pea(32, 56, 22, 0, '#d9e85c', '#8a9a1f') + pea(88, 56, 22, 1, '#c9d64a', '#7a8a1a') + '<text x="60" y="61" text-anchor="middle" font-size="16" fill="var(--accent)" font-weight="900">↔</text><text x="32" y="100" text-anchor="middle" font-size="10" fill="#9aa6b2">둥근</text><text x="88" y="100" text-anchor="middle" font-size="10" fill="#9aa6b2">주름진</text>',
+  /* 1 순종 */ () => chp('R', 'R'),
+  /* 2 잡종 */ () => chp('R', 'r'),
+  /* 3 대립 형질 */ () => pea(32, 56, 22, 0, '#facc15', '#a16207') + pea(88, 56, 22, 0, '#65a30d', '#365314') + '<text x="60" y="61" text-anchor="middle" font-size="16" fill="var(--accent)" font-weight="900">↔</text><text x="32" y="100" text-anchor="middle" font-size="10" fill="#9aa6b2">노란색</text><text x="88" y="100" text-anchor="middle" font-size="10" fill="#9aa6b2">초록색</text>'
+];
+const PICK = [1, 6, 7, 1]; // 그림 → 용어 번호
+// [용어, 짧은 뜻, 문장 카드들]
+const ST = [
+  ['형질', '생물이 가진 모양이나 성질과 같은 특성', ['생물이 가진 모양이나 성질과 같은 특성', '키, 혈액형, 홍채 색, 완두 씨 모양을 한마디로 부르는 말', '「23쌍의 비밀」의 홍채·눈썹·귓불·얼굴형은 모두 이것']],
+  ['대립 형질', '한 형질에서 뚜렷하게 대비되는 형질', ['한 가지 형질에 대해 서로 뚜렷하게 대비되는 형질', '귓불 분리형 ↔ 부착형처럼 짝을 이루는 두 형질']],
+  ['우성', '함께 있을 때 겉으로 나타나는 형질', ['대립 형질의 유전자가 함께 있을 때 겉으로 나타나는 형질', '유전자 기호에서 대문자(R)로 나타내는 형질', 'Rr 완두가 둥근 모양이라면, 둥근 모양은 이것']],
+  ['열성', '함께 있을 때 겉으로 나타나지 않는 형질', ['대립 형질의 유전자가 함께 있을 때 가려져 나타나지 않는 형질', '유전자 기호에서 소문자(r)로 나타내는 형질', '같은 유전자 2개(rr)를 가질 때만 겉으로 드러나는 형질']],
+  ['유전자형', '유전자의 구성을 기호로 쓴 것 (RR, Rr, rr)', ['형질을 나타내는 유전자의 구성을 기호로 나타낸 것', 'RR, Rr, rr은 모두 이것을 쓴 것', '판정표에서 ‘아빠 갈색 + 엄마 파랑’처럼 받은 유전자의 조합']],
+  ['표현형', '겉으로 드러나는 형질 (둥근, 주름진)', ['유전자에 따라 겉으로 드러나는 형질', '‘둥근 완두’, ‘주름진 완두’처럼 눈에 보이는 결과', 'RR 완두와 Rr 완두는 이것이 같아요 (둘 다 둥근)']],
+  ['순종', '유전자 구성이 같은 개체 (RR, rr)', ['한 형질을 나타내는 유전자의 구성이 같은 개체', 'RR이나 rr처럼 같은 유전자 2개를 가진 개체', '여러 세대 자가 수분해도 같은 형질만 나타나는 개체']],
+  ['잡종', '유전자 구성이 다른 개체 (Rr)', ['한 형질을 나타내는 유전자의 구성이 다른 개체', 'Rr처럼 서로 다른 유전자 2개를 가진 개체', '판정표에서 ‘갈색 > 파랑’처럼 아빠·엄마에게서 서로 다른 유전자를 받은 아기']]
+];
+const SLOT_CLS = k => k <= 3 ? 'm1' : 'm2';
+$('row1').innerHTML = [0, 1, 2, 3].map(k => slotHTML(k)).join('');
+$('row2').innerHTML = [4, 5, 6, 7].map(k => slotHTML(k)).join('');
+function slotHTML(k) { return '<button type="button" class="slot ' + SLOT_CLS(k) + '" id="s' + k + '" data-k="' + k + '"><b>' + ST[k][0] + '</b><small>' + (k + 1) + '</small></button>'; }
+document.querySelectorAll('.slot').forEach(b => b.onclick = () => answer(+b.dataset.k));
+$('key').innerHTML = ST.map((s, k) => { const pi = PICK.indexOf(k); return '<div class="kc ' + SLOT_CLS(k) + '">' + (pi >= 0 ? wrap(PIC[pi]()) : '') + '<b>' + s[0] + '</b><p style="margin:0 0 4px;font-size:13.5px;color:var(--fg);line-height:1.45">' + s[1] + '</p><ul>' + s[2].slice(1).map(t => '<li>' + t + '</li>').join('') + '</ul></div>'; }).join('');
+// ---------- game state
+let deck = [], idx = 0, hearts = 5, score = 0, combo = 0, maxCombo = 0, ok = 0, times = [], misses = [], t0 = 0, busy = false, playing = false, tAnim = 0;
+const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } } };
+const RK = 'gterm_card_recs';
+function recs() { let r = store.get(RK); if (!Array.isArray(r)) { r = []; const old = null; if (old) r.push({ s: old, ok: null, n: null, d: '' }); } return r; }
+function bestScore() { const r = recs(); return r.length ? r[0].s : 0; }
+function fmtD(t) { if (!t) return ''; const d = new Date(t); return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
+function recHTML(r, me) { if (!r.length) return '<li><span class="rk">-</span><span>아직 기록이 없어요. 첫 기록에 도전!</span><span></span></li>'; return r.map((x, i) => '<li' + (i === me ? ' class="me"' : '') + '><span class="rk">' + (i + 1) + '위</span><span><b>' + x.s.toLocaleString() + '</b>점' + (x.ok != null ? ' · ' + x.ok + '/' + x.n + ' 정답' : '') + '</span><span>' + (i === me ? '방금!' : fmtD(x.d)) + '</span></li>').join(''); }
+function showBest() { const r = recs(); $('recs1').innerHTML = recHTML(r, -1); $('hb').textContent = bestScore().toLocaleString(); $('bestTxt').textContent = '※ 기록은 이 기기의 이 브라우저에 저장돼요 (인터넷 기록을 지우면 사라져요)'; }
+showBest();
+let AC = null;
+function beep(f, d = .12, type = 'triangle', v = .08) { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); const o = AC.createOscillator(), g = AC.createGain(); o.type = type; o.frequency.value = f; g.gain.setValueAtTime(v, AC.currentTime); g.gain.exponentialRampToValueAtTime(.0001, AC.currentTime + d); o.connect(g).connect(AC.destination); o.start(); o.stop(AC.currentTime + d); } catch (e) { } }
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function drawHearts() { $('hearts').innerHTML = '♥'.repeat(hearts) + '<span class="lost">' + '♥'.repeat(5 - hearts) + '</span>'; }
+function start() {
+  deck = shuffle([...PIC.map((_, p) => ({ k: PICK[p], t: 'pic', p })), ...ST.flatMap((s, k) => s[2].map(q => ({ k, t: 'txt', q })))]);
+  idx = 0; hearts = 5; score = 0; combo = 0; maxCombo = 0; ok = 0; times = []; misses = []; playing = true; busy = false;
+  $('score').textContent = 0; drawHearts(); $('fb').innerHTML = '';
+  ['start', 'result', 'keySheet'].forEach(i => $(i).hidden = true);
+  beep(660, .15, 'sine'); show();
+}
+function show() {
+  const c = deck[idx], el = $('card');
+  el.className = c.t == 'pic' ? 'pic' : 'txt';
+  el.innerHTML = '<span class="kind">' + (c.t == 'pic' ? '🖼 그림 카드' : '📝 문장 카드') + '</span>' + (c.t == 'pic' ? wrap(PIC[c.p]()) : '<div class="q">' + c.q + '</div>');
+  void el.offsetWidth; el.classList.add('in');
+  $('prog').firstElementChild.style.width = (idx / deck.length * 100) + '%';
+  document.querySelectorAll('.slot').forEach(s => { s.classList.remove('good', 'wrong', 'hint'); s.disabled = false; });
+  t0 = performance.now(); busy = false; cancelAnimationFrame(tAnim); runBar();
+}
+function runBar() { const u = Math.min(1, (performance.now() - t0) / 6000); $('tbar').firstElementChild.style.transform = 'scaleX(' + (1 - u) + ')'; if (playing && !busy && u < 1) tAnim = requestAnimationFrame(runBar); }
+function floatPts(n) { const f = document.createElement('div'); f.className = 'float'; f.textContent = '+' + n; $('stage').appendChild(f); setTimeout(() => f.remove(), 800); }
+function answer(k) {
+  if (!playing || busy) return; busy = true;
+  const c = deck[idx], dt = (performance.now() - t0) / 1000, el = $('card'), s = ST[c.k];
+  document.querySelectorAll('.slot').forEach(b => b.disabled = true);
+  if (k === c.k) {
+    combo++; maxCombo = Math.max(maxCombo, combo); ok++; times.push(dt);
+    const speed = Math.max(0, Math.round((6 - dt) * 25)), pts = 100 + speed + (combo >= 3 ? (combo - 2) * 10 : 0);
+    score += pts; $('score').textContent = score; floatPts(pts);
+    $('s' + k).classList.add('good'); el.classList.add('okk');
+    $('fb').innerHTML = '<span class="g">✅ ' + s[0] + '</span> · ' + dt.toFixed(1) + '초' + (combo >= 3 ? ' · 🔥 ' + combo + '연속' : '');
+    beep(880, .1, 'sine'); setTimeout(() => beep(1175, .12, 'sine'), 80);
+    setTimeout(next, 420);
+  } else {
+    combo = 0; hearts--; drawHearts(); misses.push({ c, pick: k });
+    $('s' + k).classList.add('wrong'); $('s' + c.k).classList.add('hint'); el.classList.remove('in'); void el.offsetWidth; el.classList.add('no');
+    $('fb').innerHTML = '<span class="r">❌ 정답은 ' + s[0] + '</span> (내 답: ' + ST[k][0] + ')<br>' + s[1];
+    beep(170, .25, 'sawtooth', .06);
+    setTimeout(() => { if (hearts <= 0) end(); else next(); }, 1600);
+  }
+}
+function next() { idx++; if (idx >= deck.length) end(); else show(); }
+function end() {
+  playing = false; cancelAnimationFrame(tAnim); $('prog').firstElementChild.style.width = (Math.min(idx + 1, deck.length) / deck.length * 100) + '%';
+  const prevBest = bestScore(), nb = score > prevBest || !recs().length; const r = recs(), me = { s: score, ok, n: deck.length, d: Date.now() }; r.push(me); r.sort((a, b) => b.s - a.s); const top = r.slice(0, 5), rank = top.indexOf(me); store.set(RK, top); $('hb').textContent = bestScore().toLocaleString();
+  $('rTitle').textContent = hearts <= 0 ? '💔 목숨을 모두 잃었어요' : misses.length == 0 ? '🏆 완벽해요! 모두 정답' : '🎉 모든 카드 완료!';
+  $('rScore').textContent = score; $('rOk').textContent = ok; $('rN').textContent = deck.length;
+  $('rAvg').textContent = times.length ? (times.reduce((a, b) => a + b, 0) / times.length).toFixed(1) : '-'; $('rCombo').textContent = maxCombo;
+  $('rBest').textContent = nb ? '🎉 개인 최고 기록 경신!' : rank >= 0 ? '👏 TOP 5 중 ' + (rank + 1) + '위 기록이에요! (최고 ' + prevBest.toLocaleString() + '점)' : '최고 기록 ' + prevBest.toLocaleString() + '점까지 ' + (prevBest - score).toLocaleString() + '점 남았어요';
+  $('recs2').innerHTML = recHTML(top, rank);
+  $('missWrap').hidden = !misses.length;
+  $('miss').innerHTML = misses.map(m => '<li>' + (m.c.t == 'pic' ? wrap(PIC[m.c.p]()) : '') + '<div style="flex:1;min-width:0">' + (m.c.t == 'txt' ? '“' + m.c.q + '”<br>' : '') + '<span class="y">내 답 ' + ST[m.pick][0] + '</span> → <span class="a">정답 ' + ST[m.c.k][0] + '</span></div></li>').join('');
+  setTimeout(() => { $('result').hidden = false; beep(523, .15); setTimeout(() => beep(659, .15), 140); setTimeout(() => beep(784, .3), 280); }, 300);
+}
+$('go').onclick = start; $('again').onclick = start;
+let keyFrom = 'start';
+$('key1').onclick = () => { keyFrom = 'start'; $('start').hidden = true; $('keySheet').hidden = false; };
+$('key2').onclick = () => { keyFrom = 'result'; $('result').hidden = true; $('keySheet').hidden = false; };
+$('keyX').onclick = () => { $('keySheet').hidden = true; $(keyFrom).hidden = false; showBest(); };
+// keyboard: 1~9
+addEventListener('keydown', e => { const n = +e.key; if (n >= 1 && n <= 8) answer(n - 1); });
+// first frame: sample card behind the start sheet
+$('card').innerHTML = '<span class="kind">🔬 그림 카드</span>' + wrap(PIC[0]()); drawHearts();
+window.__ok = 1;
+</script>
+</body>
+</html>
